@@ -1,0 +1,4 @@
+maximize: true
+direction: horizontal/vertical
+columns: 2
+open_in_new_window: true

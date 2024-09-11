@@ -1,0 +1,1 @@
+wt -M ssh guacd1; sp -V ssh guacd2; mf previous; sp -H -s 0.86 ssh guacd3; sp -H -s 0.83 ssh guacd4; sp -H -s 0.8 ssh guacd5; sp -H -s 0.75 ssh guacd6;sp -H -s 0.68 ssh guacd7; sp -H -s 0.5 ssh guacd8; mf right; sp -H -s 0.83 ssh guacd9; sp -H -s 0.8 ssh guacd10; sp -H -s 0.75 ssh guacd11; sp -H -s 0.68 ssh guacd12; sp -H -s 0.5 ssh guacd13 
