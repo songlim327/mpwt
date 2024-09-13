@@ -1,9 +1,34 @@
 package core
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+	"mpwt/pkg/log"
+	"strings"
+)
 
-// CalculatePaneSize takes an integer (number of panes) and returns a slice of float64
-func CalculatePaneSize(n int) ([]float64, error) {
+type TerminalConfig struct {
+	Maximize        bool
+	Direction       string
+	Columns         int
+	OpenInNewWindow bool
+	Commands        []string
+}
+
+const (
+	Horizontal = "horizontal"
+	Vertical   = "vertical"
+	Maximize   = "maximize"
+)
+
+var flagsMap = map[string]string{
+	Horizontal: "-H",
+	Vertical:   "-V",
+	Maximize:   "-M",
+}
+
+// calculatePaneSize takes an integer (number of panes) and returns a slice of float64
+func calculatePaneSize(n int) ([]float64, error) {
 	if n < 1 {
 		return nil, errors.New("length must be greater than 0")
 	}
@@ -17,4 +42,75 @@ func CalculatePaneSize(n int) ([]float64, error) {
 	}
 
 	return results, nil
+}
+
+// generateCommand takes an array of strings and concat it with a separator
+func generateCommand(cmd []string) string {
+	return strings.Join(cmd, " ")
+}
+
+func OpenWt(t *TerminalConfig) error {
+	wtCmd := []string{"wt"}
+
+	// Append maximize flag to command
+	if t.Maximize {
+		wtCmd = append(wtCmd, flagsMap[Maximize])
+	}
+
+	// Split commands into even groups
+	cmdsLength := len(t.Commands)
+	size := (cmdsLength + t.Columns - 1) / t.Columns
+	splitCmds := make([][]string, 0, t.Columns)
+
+	for i := 0; i < cmdsLength; i += size {
+		end := i + size
+		if end > len(t.Commands) {
+			end = len(t.Commands)
+		}
+
+		splitCmds = append(splitCmds, t.Commands[i:end])
+	}
+
+	log.Debug(fmt.Sprintf("Data processing - wtCmd: %s", generateCommand(wtCmd)))
+	log.Debug(fmt.Sprintf("Data processing - splitCmds: %s", splitCmds))
+
+	// Pop and append first command from first cmds group to final windows terminal command
+	wtCmd = append(wtCmd, fmt.Sprintf("cmd /k %s;", splitCmds[0][0]))
+	splitCmds[0] = splitCmds[0][1:]
+
+	// Reverse tree direction when creating columns
+	treeDirection := flagsMap[Horizontal]
+	if t.Direction == Horizontal {
+		treeDirection = flagsMap[Vertical]
+	}
+
+	for i := 1; i < len(splitCmds); i++ {
+		// Pop and append first command from the rest of cmds group to final windows terminal command
+		wtCmd = append(wtCmd, fmt.Sprintf("sp %s cmd /k %s;", treeDirection, splitCmds[i][0]))
+		splitCmds[i] = splitCmds[i][1:]
+	}
+
+	log.Debug(fmt.Sprintf("Tree formation - wtCmd: %s", generateCommand(wtCmd)))
+	log.Debug(fmt.Sprintf("Tree formation - splitCmds: %s", splitCmds))
+
+	for i := len(splitCmds) - 1; i >= 0; i-- {
+		// Calculate size of each command pane
+		sizes, err := calculatePaneSize(len(splitCmds[i]))
+		if err != nil {
+			return err
+		}
+
+		// Form leaf command
+		for idx, cmd := range splitCmds[i] {
+			leafCmd := fmt.Sprintf("sp %s -s %.2f cmd /k %s;", flagsMap[t.Direction], sizes[idx], cmd)
+			log.Debug(fmt.Sprintf("Leaf formation - leafCmd: %s", leafCmd))
+			wtCmd = append(wtCmd, leafCmd)
+		}
+
+		// Move to the last column after finish the current
+		wtCmd = append(wtCmd, fmt.Sprintf("mf left%s", map[bool]string{true: ";", false: ""}[i != 0]))
+	}
+
+	log.Debug(generateCommand(wtCmd))
+	return nil
 }
