@@ -29,29 +29,14 @@ func main() {
 		log.NewLogWithFile(log.EnvProduction, file)
 	}
 
-	log.Debug("halo")
-	log.Info("halo")
-
+	// Initialize terminal configuration
 	terminalConf := &core.TerminalConfig{
 		Maximize:        conf.Maximize,
 		Direction:       conf.Direction,
 		Columns:         conf.Columns,
 		OpenInNewWindow: conf.OpenInNewWindow,
-		Commands:        []string{"echo 1", "echo 2", "echo 3", "echo 4", "echo 5", "echo 6", "echo 7", "echo 8", "echo 9", "echo 10"},
-	}
-	err = core.OpenWt(terminalConf)
-	if err != nil {
-		log.Error(err)
 	}
 
-	// core.InitTea()
-
-	// sizes, err := core.CalculatePaneSize(5)
-	// if err != nil {
-	// 	log.Error(err)
-	// }
-	// log.Debug(sizes)
-
-	// cmd := exec.Command("wt")
-	// cmd.Run()
+	err = core.InitTea(terminalConf)
+	log.Fatal(err)
 }

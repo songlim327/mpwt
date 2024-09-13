@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"mpwt/pkg/log"
+	"os/exec"
 	"strings"
 )
 
@@ -117,6 +118,7 @@ func OpenWt(t *TerminalConfig) error {
 		wtCmd = append(wtCmd, fmt.Sprintf("mf %s%s", map[string]string{Horizontal: "left", Vertical: "up"}[t.Direction], map[bool]string{true: ";", false: ""}[i != 0]))
 	}
 
-	log.Debug(generateCommand(wtCmd))
-	return nil
+	log.Debug(fmt.Sprintf("Full Command: %s", generateCommand(wtCmd)))
+	cmd := exec.Command(generateCommand(wtCmd))
+	return cmd.Run()
 }
