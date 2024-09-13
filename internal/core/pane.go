@@ -114,7 +114,7 @@ func OpenWt(t *TerminalConfig) error {
 		}
 
 		// Move to the first tree after finish the current
-		wtCmd = append(wtCmd, fmt.Sprintf("mf left%s", map[bool]string{true: ";", false: ""}[i != 0]))
+		wtCmd = append(wtCmd, fmt.Sprintf("mf %s%s", map[string]string{Horizontal: "left", Vertical: "up"}[t.Direction], map[bool]string{true: ";", false: ""}[i != 0]))
 	}
 
 	log.Debug(generateCommand(wtCmd))
