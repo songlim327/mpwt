@@ -78,15 +78,21 @@ func OpenWt(t *TerminalConfig) error {
 	wtCmd = append(wtCmd, fmt.Sprintf("cmd /k %s;", splitCmds[0][0]))
 	splitCmds[0] = splitCmds[0][1:]
 
-	// Reverse tree direction when creating columns
+	// Reverse general direction when creating tree
 	treeDirection := flagsMap[Horizontal]
 	if t.Direction == Horizontal {
 		treeDirection = flagsMap[Vertical]
 	}
 
+	// Calculate size of each tree
+	treeSizes, err := calculatePaneSize(t.Columns)
+	if err != nil {
+		return fmt.Errorf("failed to calculate sizes for trees: %v", err)
+	}
+
 	for i := 1; i < len(splitCmds); i++ {
 		// Pop and append first command from the rest of cmds group to final windows terminal command
-		wtCmd = append(wtCmd, fmt.Sprintf("sp %s cmd /k %s;", treeDirection, splitCmds[i][0]))
+		wtCmd = append(wtCmd, fmt.Sprintf("sp %s -s %.2f cmd /k %s;", treeDirection, treeSizes[i], splitCmds[i][0]))
 		splitCmds[i] = splitCmds[i][1:]
 	}
 
@@ -94,10 +100,10 @@ func OpenWt(t *TerminalConfig) error {
 	log.Debug(fmt.Sprintf("Tree formation - splitCmds: %s", splitCmds))
 
 	for i := len(splitCmds) - 1; i >= 0; i-- {
-		// Calculate size of each command pane
+		// Calculate size of each leaf
 		sizes, err := calculatePaneSize(len(splitCmds[i]))
 		if err != nil {
-			return err
+			return fmt.Errorf("failed to calculate sizes for leaf nodes: %v", err)
 		}
 
 		// Form leaf command
@@ -107,7 +113,7 @@ func OpenWt(t *TerminalConfig) error {
 			wtCmd = append(wtCmd, leafCmd)
 		}
 
-		// Move to the last column after finish the current
+		// Move to the first tree after finish the current
 		wtCmd = append(wtCmd, fmt.Sprintf("mf left%s", map[bool]string{true: ";", false: ""}[i != 0]))
 	}
 
