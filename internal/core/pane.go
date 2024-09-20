@@ -101,24 +101,32 @@ func OpenWt(t *TerminalConfig) error {
 	log.Debug(fmt.Sprintf("Tree formation - splitCmds: %s", splitCmds))
 
 	for i := len(splitCmds) - 1; i >= 0; i-- {
-		// Calculate size of each leaf
-		sizes, err := calculatePaneSize(len(splitCmds[i]))
-		if err != nil {
-			return fmt.Errorf("failed to calculate sizes for leaf nodes: %v", err)
-		}
+		if len(splitCmds[i]) > 0 {
+			// Calculate size of each leaf
+			sizes, err := calculatePaneSize(len(splitCmds[i]))
+			if err != nil {
+				return fmt.Errorf("failed to calculate sizes for leaf nodes: %v", err)
+			}
 
-		// Form leaf command
-		for idx, cmd := range splitCmds[i] {
-			leafCmd := fmt.Sprintf("sp %s -s %.2f cmd /k %s;", flagsMap[t.Direction], sizes[idx], cmd)
-			log.Debug(fmt.Sprintf("Leaf formation - leafCmd: %s", leafCmd))
-			wtCmd = append(wtCmd, leafCmd)
-		}
+			// Form leaf command
+			for idx, cmd := range splitCmds[i] {
+				leafCmd := fmt.Sprintf("sp %s -s %.2f cmd /k %s;", flagsMap[t.Direction], sizes[idx], cmd)
+				log.Debug(fmt.Sprintf("Leaf formation - leafCmd: %s", leafCmd))
+				wtCmd = append(wtCmd, leafCmd)
+			}
 
-		// Move to the first tree after finish the current
-		wtCmd = append(wtCmd, fmt.Sprintf("mf %s%s", map[string]string{Horizontal: "left", Vertical: "up"}[t.Direction], map[bool]string{true: ";", false: ""}[i != 0]))
+			// Move to the first tree after finish the current
+			wtCmd = append(wtCmd, fmt.Sprintf("mf %s;", map[string]string{Horizontal: "left", Vertical: "up"}[t.Direction]))
+		}
 	}
 
-	log.Debug(fmt.Sprintf("Full Command: %s", generateCommand(wtCmd)))
-	cmd := exec.Command(generateCommand(wtCmd))
+	// Remove last character if equals to semicolon (;)
+	wtCmdStr := generateCommand(wtCmd)
+	if wtCmdStr[len(wtCmdStr)-1] == ';' {
+		wtCmdStr = wtCmdStr[:len(wtCmdStr)-1]
+	}
+
+	log.Debug(fmt.Sprintf("Full Command: %s", wtCmdStr))
+	cmd := exec.Command("cmd", "/C", wtCmdStr)
 	return cmd.Run()
 }
