@@ -10,11 +10,11 @@ import (
 
 // Config represents the configuration
 type Config struct {
-	Debug           bool   `yaml:"debug"`
-	Maximize        bool   `yaml:"maximize"`
-	Direction       string `yaml:"direction"`
-	Columns         int    `yaml:"columns"`
-	OpenInNewWindow bool   `yaml:"open_in_new_window"`
+	Debug        bool   `yaml:"debug"`
+	Maximize     bool   `yaml:"maximize"`
+	Direction    string `yaml:"direction"`
+	Columns      int    `yaml:"columns"`
+	OpenInNewTab bool   `yaml:"open_in_new_tab"`
 }
 
 // NewConfig creates a new Config instance by parsing the yaml configuration file

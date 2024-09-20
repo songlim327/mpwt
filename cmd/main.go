@@ -31,12 +31,13 @@ func main() {
 
 	// Initialize terminal configuration
 	terminalConf := &core.TerminalConfig{
-		Maximize:        conf.Maximize,
-		Direction:       conf.Direction,
-		Columns:         conf.Columns,
-		OpenInNewWindow: conf.OpenInNewWindow,
+		Maximize:     conf.Maximize,
+		Direction:    conf.Direction,
+		Columns:      conf.Columns,
+		OpenInNewTab: conf.OpenInNewTab,
 	}
 
+	// Start terminal application
 	err = core.InitTea(terminalConf)
 	log.Fatal(err)
 }

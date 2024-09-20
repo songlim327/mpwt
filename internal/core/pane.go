@@ -9,53 +9,43 @@ import (
 )
 
 type TerminalConfig struct {
-	Maximize        bool
-	Direction       string
-	Columns         int
-	OpenInNewWindow bool
-	Commands        []string
+	Maximize     bool
+	Direction    string
+	Columns      int
+	OpenInNewTab bool
+	Commands     []string
 }
 
 const (
-	Horizontal = "horizontal"
-	Vertical   = "vertical"
-	Maximize   = "maximize"
+	Horizontal      = "horizontal"
+	Vertical        = "vertical"
+	Maximize        = "maximize"
+	OpenInNewTab    = "open-in-new-tab"
+	OpenInNewWindow = "open-in-new-window"
 )
 
 var flagsMap = map[string]string{
-	Horizontal: "-H",
-	Vertical:   "-V",
-	Maximize:   "-M",
+	Horizontal:      "-H",
+	Vertical:        "-V",
+	Maximize:        "-M",
+	OpenInNewTab:    "-w last",
+	OpenInNewWindow: "-w new",
 }
 
-// calculatePaneSize takes an integer (number of panes) and returns a slice of float64
-func calculatePaneSize(n int) ([]float64, error) {
-	if n < 1 {
-		return nil, errors.New("length must be greater than 0")
-	}
-
-	results := make([]float64, n)
-
-	for i := 0; i < n; i++ {
-		num := float64(n - i)
-		denom := float64(n - i + 1)
-		results[i] = num / denom
-	}
-
-	return results, nil
-}
-
-// generateCommand takes an array of strings and concat it with a separator
-func generateCommand(cmd []string) string {
-	return strings.Join(cmd, " ")
-}
-
+// OpenWt calculates and open multi pane in windows terminal
 func OpenWt(t *TerminalConfig) error {
 	wtCmd := []string{"wt"}
 
 	// Append maximize flag to command
 	if t.Maximize {
 		wtCmd = append(wtCmd, flagsMap[Maximize])
+	}
+
+	// Append open in new tab flag to command
+	if t.OpenInNewTab {
+		wtCmd = append(wtCmd, flagsMap[OpenInNewTab])
+	} else {
+		wtCmd = append(wtCmd, flagsMap[OpenInNewWindow])
 	}
 
 	// Split commands into even groups
@@ -134,4 +124,26 @@ func OpenWt(t *TerminalConfig) error {
 	log.Debug(fmt.Sprintf("Full Command: %s", wtCmdStr))
 	cmd := exec.Command("cmd", "/C", wtCmdStr)
 	return cmd.Run()
+}
+
+// calculatePaneSize takes an integer (number of panes) and returns a slice of float64
+func calculatePaneSize(n int) ([]float64, error) {
+	if n < 1 {
+		return nil, errors.New("length must be greater than 0")
+	}
+
+	results := make([]float64, n)
+
+	for i := 0; i < n; i++ {
+		num := float64(n - i)
+		denom := float64(n - i + 1)
+		results[i] = num / denom
+	}
+
+	return results, nil
+}
+
+// generateCommand takes an array of strings and concat it with a separator
+func generateCommand(cmd []string) string {
+	return strings.Join(cmd, " ")
 }
