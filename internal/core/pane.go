@@ -115,10 +115,15 @@ func OpenWt(t *TerminalConfig) error {
 				wtCmd = append(wtCmd, leafCmd)
 			}
 
-			// Move to the first tree after finish the current
-			wtCmd = append(wtCmd, fmt.Sprintf("mf %s;", map[string]string{Horizontal: "left", Vertical: "up"}[t.Direction]))
+			// Move to the previous row/column after finish the current
+			if i != 0 {
+				wtCmd = append(wtCmd, fmt.Sprintf("mf %s;", map[string]string{Horizontal: "left", Vertical: "up"}[t.Direction]))
+			}
 		}
 	}
+
+	// Move focus to the first leaf pane in the tree
+	wtCmd = append(wtCmd, "mf first")
 
 	// Remove last character if equals to semicolon (;)
 	wtCmdStr := generateCommand(wtCmd)
