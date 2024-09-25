@@ -46,11 +46,11 @@ var keys = keyMap{
 type mainWindow struct {
 	width    int
 	height   int
-	errorMsg error
 	tc       *core.TerminalConfig
 	textarea textarea.Model
 	help     help.Model
 	keys     keyMap
+	status   *status
 }
 
 func initialModel(tc *core.TerminalConfig) mainWindow {
@@ -63,6 +63,7 @@ func initialModel(tc *core.TerminalConfig) mainWindow {
 		help:     help.New(),
 		keys:     keys,
 		tc:       tc,
+		status:   newStatus(""),
 	}
 }
 
@@ -84,7 +85,7 @@ func (m mainWindow) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.tc.Commands = strings.Split(m.textarea.Value(), "\n")
 			err := core.OpenWt(m.tc)
 			if err != nil {
-				m.errorMsg = err
+				m.status.Update(statusMsg{message: err.Error()})
 				return m, nil
 			} else {
 				return m, tea.Quit
@@ -104,13 +105,14 @@ func (m mainWindow) View() string {
 	margin := 2
 	padding := 1
 
-	boxWidth := m.width - margin*2 - padding*2
-	boxHeight := m.height - margin*2 - padding
+	boxWidth := m.width - margin*2
+	boxHeight := m.height - margin*2 - m.status.GetHeight()
 
-	m.help.Width = boxWidth
-	m.textarea.SetWidth(boxWidth)
+	m.help.Width = boxWidth - padding*2
+	m.textarea.SetWidth(boxWidth - padding*2)
 	// Calculate the height of other components and minus off
-	m.textarea.SetHeight(boxHeight - 3)
+	m.textarea.SetHeight(boxHeight - 4)
+	m.status.UpdateWindowWidth(boxWidth)
 
 	// Footer
 	miscBox := lipgloss.NewStyle().
@@ -118,7 +120,7 @@ func (m mainWindow) View() string {
 		Align(lipgloss.Left).
 		Render("Author: songlim327")
 	titleBox := lipgloss.NewStyle().
-		Width(boxWidth / 3).
+		Width(boxWidth/3 - 1).
 		Align(lipgloss.Center).
 		Render("🍊 MPWT 🍊")
 	versionBox := lipgloss.NewStyle().
@@ -126,32 +128,30 @@ func (m mainWindow) View() string {
 		Align(lipgloss.Right).
 		Bold(true).
 		Render("0.1.1")
-	footer := lipgloss.JoinHorizontal(lipgloss.Top, miscBox, titleBox, versionBox)
-
-	// TODO: remove this and handle error in UI properly (e.g. have a message notification bar)
-	// if m.errorMsg != nil {
-	// 	log.Error(m.errorMsg)
-	// }
+	footer := lipgloss.JoinHorizontal(lipgloss.Left, miscBox, titleBox, versionBox)
 
 	// Content box
-	return lipgloss.NewStyle().
-		MarginLeft(margin).
-		MarginTop(margin).
-		Width(boxWidth).
-		Height(boxHeight).
-		Border(lipgloss.RoundedBorder()).
-		BorderForeground(lipgloss.Color("208")). // ANSI color code - orange
-		PaddingLeft(padding).
-		PaddingRight(padding).
-		PaddingTop(padding).
-		Render(
-			lipgloss.JoinVertical(lipgloss.Center,
-				"Each line command will spawn a new terminal",
-				m.textarea.View(),
-				m.help.View(m.keys),
-			),
-			footer,
-		)
+	return lipgloss.NewStyle().MarginLeft(margin).MarginTop(margin).Render(
+		lipgloss.JoinVertical(lipgloss.Left,
+			m.status.View(),
+			lipgloss.NewStyle().
+				Width(boxWidth).
+				Height(boxHeight).
+				Border(lipgloss.RoundedBorder()).
+				BorderForeground(lipgloss.Color(BorderForegroundColor)).
+				PaddingLeft(padding).
+				PaddingRight(padding).
+				PaddingTop(padding).
+				Render(
+					lipgloss.JoinVertical(lipgloss.Center,
+						"Each line command will spawn a new terminal",
+						m.textarea.View(),
+						m.help.View(m.keys),
+					),
+					footer,
+				),
+		),
+	)
 }
 
 // InitTea intialize a new tea program with user interactions
