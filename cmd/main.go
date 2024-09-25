@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"mpwt/internal/config"
 	"mpwt/internal/core"
+	"mpwt/internal/tui"
 	"mpwt/pkg/log"
 	"os"
 )
@@ -38,6 +39,6 @@ func main() {
 	}
 
 	// Start terminal application
-	err = core.InitTea(terminalConf)
+	err = tui.InitTea(terminalConf)
 	log.Fatal(err)
 }

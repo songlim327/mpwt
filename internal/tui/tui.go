@@ -1,7 +1,7 @@
-package core
+package tui
 
 import (
-	"mpwt/pkg/log"
+	"mpwt/internal/core"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/help"
@@ -43,22 +43,22 @@ var keys = keyMap{
 	),
 }
 
-type model struct {
+type mainWindow struct {
 	width    int
 	height   int
 	errorMsg error
-	tc       *TerminalConfig
+	tc       *core.TerminalConfig
 	textarea textarea.Model
 	help     help.Model
 	keys     keyMap
 }
 
-func initialModel(tc *TerminalConfig) model {
+func initialModel(tc *core.TerminalConfig) mainWindow {
 	ta := textarea.New()
 	ta.Placeholder = "..."
 	ta.Focus()
 
-	return model{
+	return mainWindow{
 		textarea: ta,
 		help:     help.New(),
 		keys:     keys,
@@ -66,11 +66,11 @@ func initialModel(tc *TerminalConfig) model {
 	}
 }
 
-func (m model) Init() tea.Cmd {
+func (m mainWindow) Init() tea.Cmd {
 	return textarea.Blink
 }
 
-func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m mainWindow) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
@@ -82,11 +82,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		case key.Matches(msg, m.keys.Launch):
 			m.tc.Commands = strings.Split(m.textarea.Value(), "\n")
-			err := OpenWt(m.tc)
+			err := core.OpenWt(m.tc)
 			if err != nil {
 				m.errorMsg = err
+				return m, nil
+			} else {
+				return m, tea.Quit
 			}
-			return m, nil
 		default:
 			// Send all other keypresses to the textarea.
 			var cmd tea.Cmd
@@ -98,7 +100,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m model) View() string {
+func (m mainWindow) View() string {
 	margin := 2
 	padding := 1
 
@@ -127,9 +129,9 @@ func (m model) View() string {
 	footer := lipgloss.JoinHorizontal(lipgloss.Top, miscBox, titleBox, versionBox)
 
 	// TODO: remove this and handle error in UI properly (e.g. have a message notification bar)
-	if m.errorMsg != nil {
-		log.Error(m.errorMsg)
-	}
+	// if m.errorMsg != nil {
+	// 	log.Error(m.errorMsg)
+	// }
 
 	// Content box
 	return lipgloss.NewStyle().
@@ -144,7 +146,7 @@ func (m model) View() string {
 		PaddingTop(padding).
 		Render(
 			lipgloss.JoinVertical(lipgloss.Center,
-				"Each command below will start a new terminal",
+				"Each line command will spawn a new terminal",
 				m.textarea.View(),
 				m.help.View(m.keys),
 			),
@@ -153,8 +155,11 @@ func (m model) View() string {
 }
 
 // InitTea intialize a new tea program with user interactions
-func InitTea(tc *TerminalConfig) error {
-	p := tea.NewProgram(initialModel(tc), tea.WithAltScreen())
+func InitTea(tc *core.TerminalConfig) error {
+	p := tea.NewProgram(
+		initialModel(tc),
+		tea.WithAltScreen(),
+	)
 
 	if _, err := p.Run(); err != nil {
 		return err
