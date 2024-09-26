@@ -51,6 +51,7 @@ type mainWindow struct {
 	help     help.Model
 	keys     keyMap
 	status   *status
+	footer   *footer
 }
 
 func initialModel(tc *core.TerminalConfig) mainWindow {
@@ -64,6 +65,7 @@ func initialModel(tc *core.TerminalConfig) mainWindow {
 		keys:     keys,
 		tc:       tc,
 		status:   newStatus(""),
+		footer:   newFooter(),
 	}
 }
 
@@ -113,22 +115,7 @@ func (m mainWindow) View() string {
 	// Calculate the height of other components and minus off
 	m.textarea.SetHeight(boxHeight - 4)
 	m.status.UpdateWindowWidth(boxWidth)
-
-	// Footer
-	miscBox := lipgloss.NewStyle().
-		Width(boxWidth / 3).
-		Align(lipgloss.Left).
-		Render("Author: songlim327")
-	titleBox := lipgloss.NewStyle().
-		Width(boxWidth/3 - 1).
-		Align(lipgloss.Center).
-		Render("🍊 MPWT 🍊")
-	versionBox := lipgloss.NewStyle().
-		Width(boxWidth / 3).
-		Align(lipgloss.Right).
-		Bold(true).
-		Render("0.1.1")
-	footer := lipgloss.JoinHorizontal(lipgloss.Left, miscBox, titleBox, versionBox)
+	m.footer.updateWindowWidth(boxWidth)
 
 	// Content box
 	return lipgloss.NewStyle().MarginLeft(margin).MarginTop(margin).Render(
@@ -148,7 +135,7 @@ func (m mainWindow) View() string {
 						m.textarea.View(),
 						m.help.View(m.keys),
 					),
-					footer,
+					m.footer.View(),
 				),
 		),
 	)
