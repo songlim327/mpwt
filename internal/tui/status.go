@@ -30,19 +30,19 @@ func newStatus(defaultMessage string) *status {
 	}
 }
 
-// UpdateWindowSize updates the main windows width to be used for the status component
-func (s *status) UpdateWindowWidth(width int) {
+// updateWindowSize updates the main windows width to be used for the status component
+func (s *status) updateWindowWidth(width int) {
 	s.windowWidth = width
 }
 
-// GetHeight returns the height of the status component
-func (s *status) GetHeight() int { return s.style.GetHeight() }
+// getHeight returns the height of the status component
+func (s *status) getHeight() int { return s.style.GetHeight() }
 
 // Init is the bubbletea package ELM architecture specific functions
-func (s *status) Init() tea.Cmd { return nil }
+func (s status) Init() tea.Cmd { return nil }
 
 // Update is the bubbletea package ELM architecture specific functions
-func (s *status) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (s status) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case statusMsg:
 		s.message = fmt.Sprintf("🍊 %s", msg.message)
@@ -51,7 +51,7 @@ func (s *status) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 // View is the bubbletea package ELM architecture specific functions
-func (s *status) View() string {
+func (s status) View() string {
 	return s.style.Width(s.windowWidth).
 		Render(s.message)
 }

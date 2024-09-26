@@ -108,13 +108,13 @@ func (m mainWindow) View() string {
 	padding := 1
 
 	boxWidth := m.width - margin*2
-	boxHeight := m.height - margin*2 - m.status.GetHeight()
+	boxHeight := m.height - margin*2 - m.status.getHeight()
 
 	m.help.Width = boxWidth - padding*2
 	m.textarea.SetWidth(boxWidth - padding*2)
 	// Calculate the height of other components and minus off
 	m.textarea.SetHeight(boxHeight - 4)
-	m.status.UpdateWindowWidth(boxWidth)
+	m.status.updateWindowWidth(boxWidth)
 	m.footer.updateWindowWidth(boxWidth)
 
 	// Content box

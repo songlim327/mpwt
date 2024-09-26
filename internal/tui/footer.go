@@ -21,15 +21,15 @@ func (f *footer) updateWindowWidth(width int) {
 }
 
 // Init is the bubbletea package ELM architecture specific functions
-func (f *footer) Init() tea.Cmd { return nil }
+func (f footer) Init() tea.Cmd { return nil }
 
 // Update is the bubbletea package ELM architecture specific functions
-func (f *footer) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (f footer) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return f, nil
 }
 
 // View is the bubbletea package ELM architecture specific functions
-func (f *footer) View() string {
+func (f footer) View() string {
 	miscBox := lipgloss.NewStyle().
 		Width(f.windowWidth / 3).
 		Align(lipgloss.Left).
