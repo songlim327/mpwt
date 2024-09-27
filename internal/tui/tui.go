@@ -8,7 +8,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-type mainWindow struct {
+type tui struct {
 	width    int
 	height   int
 	viewport string
@@ -23,8 +23,8 @@ type viewportMsg struct {
 	viewport string
 }
 
-func initialModel(tc *core.TerminalConfig) mainWindow {
-	return mainWindow{
+func newTui(tc *core.TerminalConfig) *tui {
+	return &tui{
 		viewport: Main,
 		status:   newStatus(""),
 		footer:   newFooter(),
@@ -33,45 +33,45 @@ func initialModel(tc *core.TerminalConfig) mainWindow {
 	}
 }
 
-func (m mainWindow) Init() tea.Cmd {
+func (t *tui) Init() tea.Cmd {
 	return textarea.Blink
 }
 
-func (m mainWindow) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (t *tui) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.width = msg.Width
-		m.height = msg.Height
+		t.width = msg.Width
+		t.height = msg.Height
 
 	case viewportMsg:
-		m.viewport = msg.viewport
-		if m.viewport == Execute {
-			s, cmd := m.status.Update(statusMsg{message: "Each line of command will spawn a new pane in terminal"})
-			m.status = s.(*status)
-			return m, cmd
+		t.viewport = msg.viewport
+		if t.viewport == Execute {
+			s, cmd := t.status.Update(statusMsg{message: "Each line of command will spawn a new pane in terminal"})
+			t.status = s.(*status)
+			return t, cmd
 		}
 
 	case statusMsg:
-		s, cmd := m.status.Update(msg)
-		m.status = s.(*status)
-		return m, cmd
+		s, cmd := t.status.Update(msg)
+		t.status = s.(*status)
+		return t, cmd
 
 	case tea.KeyMsg:
-		switch m.viewport {
+		switch t.viewport {
 		case Execute:
-			e, cmd := m.execute.Update(msg)
-			m.execute = e.(*execute)
-			return m, cmd
+			e, cmd := t.execute.Update(msg)
+			t.execute = e.(*execute)
+			return t, cmd
 		default:
-			o, cmd := m.option.Update(msg)
-			m.option = o.(*option)
-			return m, cmd
+			o, cmd := t.option.Update(msg)
+			t.option = o.(*option)
+			return t, cmd
 		}
 	}
-	return m, nil
+	return t, nil
 }
 
-func (m mainWindow) View() string {
+func (t *tui) View() string {
 	margin := 2
 	padding := 1
 	gap := 1
@@ -81,29 +81,29 @@ func (m mainWindow) View() string {
 		BorderForeground(lipgloss.Color(BorderForegroundColor))
 
 	// Window and children size calculations
-	boxWidth := m.width - margin*2
-	boxHeight := m.height - margin*2 - boxStyle.GetBorderTopSize()*2 - m.status.style.GetHeight() - m.status.style.GetBorderTopSize()*2
+	boxWidth := t.width - margin*2
+	boxHeight := t.height - margin*2 - boxStyle.GetBorderTopSize()*2 - t.status.style.GetHeight() - t.status.style.GetBorderTopSize()*2
 
-	m.status.width = boxWidth
-	m.footer.width = boxWidth - padding*2
+	t.status.width = boxWidth
+	t.footer.width = boxWidth - padding*2
 
 	var view string
-	switch m.viewport {
+	switch t.viewport {
 	case Execute:
-		m.execute.width = boxWidth - padding*2
-		m.execute.height = boxHeight - padding - m.footer.style.GetHeight()
-		view = m.execute.View()
+		t.execute.width = boxWidth - padding*2
+		t.execute.height = boxHeight - padding - t.footer.style.GetHeight()
+		view = t.execute.View()
 	default:
-		m.option.width = boxWidth - padding*2
-		m.option.height = boxHeight - padding - m.footer.style.GetHeight()
-		view = m.option.View()
+		t.option.width = boxWidth - padding*2
+		t.option.height = boxHeight - padding - t.footer.style.GetHeight()
+		view = t.option.View()
 	}
 
 	// Content box
 	return lipgloss.NewStyle().
 		Margin(margin).
 		Render(
-			m.status.View(),
+			t.status.View(),
 			boxStyle.
 				Width(boxWidth).
 				Height(boxHeight).
@@ -111,7 +111,7 @@ func (m mainWindow) View() string {
 				MarginTop(gap).Render(
 				lipgloss.JoinVertical(lipgloss.Left,
 					view,
-					m.footer.View(),
+					t.footer.View(),
 				),
 			),
 		)
@@ -121,7 +121,7 @@ func (m mainWindow) View() string {
 // InitTea intialize a new tea program with user interactions
 func InitTea(tc *core.TerminalConfig) error {
 	p := tea.NewProgram(
-		initialModel(tc),
+		newTui(tc),
 		tea.WithAltScreen(),
 	)
 
