@@ -5,9 +5,13 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+var (
+	textStyle = lipgloss.NewStyle().Foreground(lipgloss.Color(TextColor))
+)
+
 // footer represents the state of footer component
 type footer struct {
-	windowWidth int
+	width int
 }
 
 // newFooter creates a new footer instance
@@ -15,33 +19,29 @@ func newFooter() *footer {
 	return &footer{}
 }
 
-// updateWindowWidth updates the main window width tobe used for the footer component
-func (f *footer) updateWindowWidth(width int) {
-	f.windowWidth = width
-}
-
 // Init is the bubbletea package ELM architecture specific functions
-func (f footer) Init() tea.Cmd { return nil }
+func (f *footer) Init() tea.Cmd { return nil }
 
 // Update is the bubbletea package ELM architecture specific functions
-func (f footer) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (f *footer) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return f, nil
 }
 
 // View is the bubbletea package ELM architecture specific functions
-func (f footer) View() string {
-	miscBox := lipgloss.NewStyle().
-		Width(f.windowWidth / 3).
+func (f *footer) View() string {
+	miscBox := textStyle.
+		Width(f.width / 3).
 		Align(lipgloss.Left).
-		Render("Author: songlim327")
-	titleBox := lipgloss.NewStyle().
-		Width(f.windowWidth/3 - 1).
+		Render("songlim327")
+	titleBox := textStyle.
+		Width(f.width/3 - 1).
 		Align(lipgloss.Center).
-		Render("🍊 MPWT 🍊")
-	versionBox := lipgloss.NewStyle().
-		Width(f.windowWidth / 3).
+		Render("MPWT")
+	versionBox := textStyle.
+		Width(f.width / 3).
 		Align(lipgloss.Right).
 		Bold(true).
 		Render("0.1.1")
-	return lipgloss.JoinHorizontal(lipgloss.Left, miscBox, titleBox, versionBox)
+
+	return lipgloss.JoinHorizontal(lipgloss.Right, miscBox, titleBox, versionBox)
 }

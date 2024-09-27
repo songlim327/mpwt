@@ -2,70 +2,34 @@ package tui
 
 import (
 	"mpwt/internal/core"
-	"strings"
 
-	"github.com/charmbracelet/bubbles/help"
-	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
 
-// keyMap defines a set of keybindings.
-type keyMap struct {
-	Launch key.Binding
-	Quit   key.Binding
-}
-
-// ShortHelp returns keybindings to be shown in the mini help view
-// It is part of the key.Map interface
-func (k keyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.Launch, k.Quit}
-}
-
-// FullHelp returns keybindings to be shown in the full help view
-// It is part of the key.Map interface
-func (k keyMap) FullHelp() [][]key.Binding {
-	return [][]key.Binding{
-		{k.Launch, k.Quit},
-	}
-}
-
-// keys implements key.Map interface and defines keyMap  of help menu
-var keys = keyMap{
-	Launch: key.NewBinding(
-		key.WithKeys("ctrl+s"),
-		key.WithHelp("ctrl+s", "launch"),
-	),
-	Quit: key.NewBinding(
-		key.WithKeys("q", "esc"),
-		key.WithHelp("esc/q", "quit"),
-	),
-}
-
 type mainWindow struct {
 	width    int
 	height   int
-	tc       *core.TerminalConfig
-	textarea textarea.Model
-	help     help.Model
-	keys     keyMap
+	viewport string
 	status   *status
 	footer   *footer
+	option   *option
+	execute  *execute
+}
+
+// viewportMsg represents a message struct to trigger main window view changes
+type viewportMsg struct {
+	viewport string
 }
 
 func initialModel(tc *core.TerminalConfig) mainWindow {
-	ta := textarea.New()
-	ta.Placeholder = "..."
-	ta.Focus()
-
 	return mainWindow{
-		textarea: ta,
-		help:     help.New(),
-		keys:     keys,
-		tc:       tc,
+		viewport: Main,
 		status:   newStatus(""),
 		footer:   newFooter(),
+		option:   newOption(),
+		execute:  newExecute(tc),
 	}
 }
 
@@ -79,66 +43,79 @@ func (m mainWindow) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.width = msg.Width
 		m.height = msg.Height
 
+	case viewportMsg:
+		m.viewport = msg.viewport
+		if m.viewport == Execute {
+			s, cmd := m.status.Update(statusMsg{message: "Each line of command will spawn a new pane in terminal"})
+			m.status = s.(*status)
+			return m, cmd
+		}
+
+	case statusMsg:
+		s, cmd := m.status.Update(msg)
+		m.status = s.(*status)
+		return m, cmd
+
 	case tea.KeyMsg:
-		switch {
-		case key.Matches(msg, m.keys.Quit):
-			return m, tea.Quit
-		case key.Matches(msg, m.keys.Launch):
-			m.tc.Commands = strings.Split(m.textarea.Value(), "\n")
-			err := core.OpenWt(m.tc)
-			if err != nil {
-				m.status.Update(statusMsg{message: err.Error()})
-				return m, nil
-			} else {
-				return m, tea.Quit
-			}
+		switch m.viewport {
+		case Execute:
+			e, cmd := m.execute.Update(msg)
+			m.execute = e.(*execute)
+			return m, cmd
 		default:
-			// Send all other keypresses to the textarea.
-			var cmd tea.Cmd
-			m.textarea, cmd = m.textarea.Update(msg)
+			o, cmd := m.option.Update(msg)
+			m.option = o.(*option)
 			return m, cmd
 		}
 	}
-
 	return m, nil
 }
 
 func (m mainWindow) View() string {
 	margin := 2
 	padding := 1
+	gap := 1
 
+	boxStyle := lipgloss.NewStyle().
+		Border(lipgloss.RoundedBorder()).
+		BorderForeground(lipgloss.Color(BorderForegroundColor))
+
+	// Window and children size calculations
 	boxWidth := m.width - margin*2
-	boxHeight := m.height - margin*2 - m.status.getHeight()
+	boxHeight := m.height - margin*2 - boxStyle.GetBorderTopSize()*2 - m.status.style.GetHeight() - m.status.style.GetBorderTopSize()*2
 
-	m.help.Width = boxWidth - padding*2
-	m.textarea.SetWidth(boxWidth - padding*2)
-	// Calculate the height of other components and minus off
-	m.textarea.SetHeight(boxHeight - 4)
-	m.status.updateWindowWidth(boxWidth)
-	m.footer.updateWindowWidth(boxWidth)
+	m.status.width = boxWidth
+	m.footer.width = boxWidth
+
+	var view string
+	switch m.viewport {
+	case Execute:
+		m.execute.width = boxWidth - padding*2
+		m.execute.height = boxHeight - padding - 1 // extra -1 equals to height of footer
+		view = m.execute.View()
+	default:
+		m.option.width = boxWidth - padding*2
+		m.option.height = boxHeight - padding - 1 // extra -1 equals to height of footer
+		view = m.option.View()
+	}
 
 	// Content box
-	return lipgloss.NewStyle().MarginLeft(margin).MarginTop(margin).Render(
-		lipgloss.JoinVertical(lipgloss.Left,
+	return lipgloss.NewStyle().
+		Margin(margin).
+		Render(
 			m.status.View(),
-			lipgloss.NewStyle().
+			boxStyle.
 				Width(boxWidth).
 				Height(boxHeight).
-				Border(lipgloss.RoundedBorder()).
-				BorderForeground(lipgloss.Color(BorderForegroundColor)).
-				PaddingLeft(padding).
-				PaddingRight(padding).
-				PaddingTop(padding).
-				Render(
-					lipgloss.JoinVertical(lipgloss.Center,
-						"Each line command will spawn a new terminal",
-						m.textarea.View(),
-						m.help.View(m.keys),
-					),
+				Padding(padding, padding, 0, padding).
+				MarginTop(gap).Render(
+				lipgloss.JoinVertical(lipgloss.Left,
+					view,
 					m.footer.View(),
 				),
-		),
-	)
+			),
+		)
+
 }
 
 // InitTea intialize a new tea program with user interactions
