@@ -40,5 +40,7 @@ func main() {
 
 	// Start terminal application
 	err = tui.InitTea(terminalConf)
-	log.Fatal(err)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
