@@ -60,7 +60,7 @@ func newOption() *option {
 	}
 
 	l := list.New(items, itemDelegate{}, 0, 0)
-	l.Title = "Welcome to MPWT, choose an option below:"
+	l.Title = "Welcome to MPWT, choose your option below:"
 	l.SetShowStatusBar(false)
 	l.Styles.Title = titleStyle
 
