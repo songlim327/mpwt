@@ -3,7 +3,6 @@ package tui
 import (
 	"mpwt/internal/core"
 
-	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 )
@@ -34,7 +33,7 @@ func newTui(tc *core.TerminalConfig) *tui {
 }
 
 func (t *tui) Init() tea.Cmd {
-	return textarea.Blink
+	return tea.SetWindowTitle("🍊 MPWT")
 }
 
 func (t *tui) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
