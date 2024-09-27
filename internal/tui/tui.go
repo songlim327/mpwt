@@ -85,17 +85,17 @@ func (m mainWindow) View() string {
 	boxHeight := m.height - margin*2 - boxStyle.GetBorderTopSize()*2 - m.status.style.GetHeight() - m.status.style.GetBorderTopSize()*2
 
 	m.status.width = boxWidth
-	m.footer.width = boxWidth
+	m.footer.width = boxWidth - padding*2
 
 	var view string
 	switch m.viewport {
 	case Execute:
 		m.execute.width = boxWidth - padding*2
-		m.execute.height = boxHeight - padding - 1 // extra -1 equals to height of footer
+		m.execute.height = boxHeight - padding - m.footer.style.GetHeight()
 		view = m.execute.View()
 	default:
 		m.option.width = boxWidth - padding*2
-		m.option.height = boxHeight - padding - 1 // extra -1 equals to height of footer
+		m.option.height = boxHeight - padding - m.footer.style.GetHeight()
 		view = m.option.View()
 	}
 

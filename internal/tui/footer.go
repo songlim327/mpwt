@@ -5,18 +5,17 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-var (
-	textStyle = lipgloss.NewStyle().Foreground(lipgloss.Color(TextColor))
-)
-
 // footer represents the state of footer component
 type footer struct {
 	width int
+	style lipgloss.Style
 }
 
 // newFooter creates a new footer instance
 func newFooter() *footer {
-	return &footer{}
+	return &footer{
+		style: lipgloss.NewStyle().Height(1).Foreground(lipgloss.Color(TextColor)),
+	}
 }
 
 // Init is the bubbletea package ELM architecture specific functions
@@ -29,19 +28,8 @@ func (f *footer) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 // View is the bubbletea package ELM architecture specific functions
 func (f *footer) View() string {
-	miscBox := textStyle.
-		Width(f.width / 3).
-		Align(lipgloss.Left).
-		Render("songlim327")
-	titleBox := textStyle.
-		Width(f.width/3 - 1).
-		Align(lipgloss.Center).
-		Render("MPWT")
-	versionBox := textStyle.
-		Width(f.width / 3).
-		Align(lipgloss.Right).
-		Bold(true).
-		Render("0.1.1")
-
-	return lipgloss.JoinHorizontal(lipgloss.Right, miscBox, titleBox, versionBox)
+	return f.style.Width(f.width).AlignHorizontal(lipgloss.Right).Render(
+		lipgloss.NewStyle().Foreground(lipgloss.Color(Yellow)).Underline(true).Render("Github"),
+		lipgloss.NewStyle().Foreground(lipgloss.Color(Green)).Render("0.1.1"),
+	)
 }

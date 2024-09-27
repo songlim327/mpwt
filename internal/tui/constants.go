@@ -1,10 +1,31 @@
 package tui
 
 const (
-	BorderForegroundColor = "#b4befe"
-	SelectionColor        = "#fab387"
-	TextColor             = "#cdd6f4"
-	SubTextColor          = "#bac2de"
+	// Catpuccin mocha color palette
+	Rosewater = "#f5e0dc"
+	Flamingo  = "#f2cdcd"
+	Pink      = "#f5c2e7"
+	Mauve     = "#cba6f7"
+	Red       = "#f38ba8"
+	Maroon    = "#eba0ac"
+	Peach     = "#fab387"
+	Yellow    = "#f9e2af"
+	Green     = "#a6e3a1"
+	Teal      = "#94e2d5"
+	Sky       = "#89dceb"
+	Sapphire  = "#74c7ec"
+	Blue      = "#89b4fa"
+	Lavender  = "#b4befe"
+	Text      = "#cdd6f4"
+	SubText1  = "#bac2de"
+	Base      = "#1e1e2e"
+
+	Whitesmoke = "#f5f5f5"
+
+	BorderForegroundColor = Whitesmoke
+	SelectionColor        = Peach
+	TextColor             = Text
+	SubTextColor          = SubText1
 
 	// Option/View list
 	Main        = "Main"
