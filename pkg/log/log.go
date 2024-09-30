@@ -56,7 +56,7 @@ func Error(message interface{}) {
 
 // Fatal logs an fatal message and exit the application
 func Fatal(message interface{}) {
-	l.Logger.Debug(message)
+	l.Logger.Fatal(message)
 }
 
 // initLogger initializes the logger based on the provided application environment and writer
