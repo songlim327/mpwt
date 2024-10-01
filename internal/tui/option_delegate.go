@@ -15,13 +15,13 @@ var (
 	selectedItemStyle = lipgloss.NewStyle().PaddingLeft(1).Foreground(lipgloss.Color(SelectionColor))
 )
 
-type itemDelegate struct{}
+type optionDelegate struct{}
 
-func (d itemDelegate) Height() int                             { return 1 }
-func (d itemDelegate) Spacing() int                            { return 0 }
-func (d itemDelegate) Update(_ tea.Msg, _ *list.Model) tea.Cmd { return nil }
-func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
-	i, ok := listItem.(item)
+func (d optionDelegate) Height() int                             { return 1 }
+func (d optionDelegate) Spacing() int                            { return 0 }
+func (d optionDelegate) Update(_ tea.Msg, _ *list.Model) tea.Cmd { return nil }
+func (d optionDelegate) Render(w io.Writer, m list.Model, index int, listItem list.Item) {
+	i, ok := listItem.(optionItem)
 	if !ok {
 		return
 	}
@@ -39,6 +39,6 @@ func (d itemDelegate) Render(w io.Writer, m list.Model, index int, listItem list
 }
 
 // newDelegate creates a new list.Model item delegate
-func newDelegate() *itemDelegate {
-	return &itemDelegate{}
+func newDelegate() *optionDelegate {
+	return &optionDelegate{}
 }

@@ -10,11 +10,11 @@ var (
 	titleStyle = lipgloss.NewStyle().Bold(true).Underline(true)
 )
 
-type item struct {
+type optionItem struct {
 	title, desc string
 }
 
-func (i item) FilterValue() string { return i.title }
+func (i optionItem) FilterValue() string { return i.title }
 
 // option represents the the main menu selection component
 type option struct {
@@ -26,9 +26,9 @@ type option struct {
 // newOption creates a new option
 func newOption() *option {
 	items := []list.Item{
-		item{title: Execute, desc: ExecuteDesc},
-		item{title: History, desc: HistoryDesc},
-		item{title: Exit, desc: ExitDesc},
+		optionItem{title: Execute, desc: ExecuteDesc},
+		optionItem{title: History, desc: HistoryDesc},
+		optionItem{title: Exit, desc: ExitDesc},
 	}
 
 	l := list.New(items, newDelegate(), 0, 0)
@@ -55,7 +55,7 @@ func (o *option) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "up":
 			o.list.CursorUp()
-			i, ok := o.list.SelectedItem().(item)
+			i, ok := o.list.SelectedItem().(optionItem)
 			if ok {
 				return o, func() tea.Msg {
 					return statusMsg{message: i.desc}
@@ -65,7 +65,7 @@ func (o *option) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case "down":
 			o.list.CursorDown()
-			i, ok := o.list.SelectedItem().(item)
+			i, ok := o.list.SelectedItem().(optionItem)
 			if ok {
 				return o, func() tea.Msg {
 					return statusMsg{message: i.desc}
@@ -74,7 +74,7 @@ func (o *option) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return o, nil
 
 		case "enter":
-			i, ok := o.list.SelectedItem().(item)
+			i, ok := o.list.SelectedItem().(optionItem)
 			if ok {
 				if i.title == Exit {
 					return o, tea.Quit
