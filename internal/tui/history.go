@@ -71,7 +71,7 @@ func (h *history) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 		case key.Matches(msg, h.keys.back):
 			return h, tea.Batch(
-				sendViewportUpdate(Main),
+				sendViewportUpdate(MainView),
 				sendStatusUpdate(""),
 			)
 

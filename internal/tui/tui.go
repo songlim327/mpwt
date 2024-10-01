@@ -45,7 +45,7 @@ func newTui(tuiConf *TuiConfig) (*tui, error) {
 	}
 
 	return &tui{
-		viewport: Main,
+		viewport: MainView,
 		status:   newStatus(""),
 		footer:   newFooter(),
 		option:   newOption(),
@@ -68,7 +68,7 @@ func (t *tui) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case viewportMsg:
 		t.viewport = msg.viewport
-		if t.viewport == Execute {
+		if t.viewport == ExecuteView {
 			s, cmd := t.status.Update(statusMsg{message: "Each line of command will spawn a new pane in terminal"})
 			t.status = s.(*status)
 			return t, cmd
@@ -81,11 +81,11 @@ func (t *tui) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	case tea.KeyMsg:
 		switch t.viewport {
-		case Execute:
+		case ExecuteView:
 			e, cmd := t.execute.Update(msg)
 			t.execute = e.(*execute)
 			return t, cmd
-		case History:
+		case HistoryView:
 			h, cmd := t.history.Update(msg)
 			t.history = h.(*history)
 			return t, cmd
@@ -117,11 +117,11 @@ func (t *tui) View() string {
 
 	var view string
 	switch t.viewport {
-	case Execute:
+	case ExecuteView:
 		t.execute.width = boxWidth - padding*2
 		t.execute.height = boxHeight - padding - t.footer.style.GetHeight()
 		view = t.execute.View()
-	case History:
+	case HistoryView:
 		t.history.width = boxWidth - padding*2
 		t.history.height = boxHeight - padding - t.footer.style.GetHeight()
 		view = t.history.View()

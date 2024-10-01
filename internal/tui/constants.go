@@ -2,37 +2,38 @@ package tui
 
 const (
 	// Catpuccin mocha color palette
-	Rosewater = "#f5e0dc"
-	Flamingo  = "#f2cdcd"
-	Pink      = "#f5c2e7"
-	Mauve     = "#cba6f7"
-	Red       = "#f38ba8"
-	Maroon    = "#eba0ac"
-	Peach     = "#fab387"
-	Yellow    = "#f9e2af"
-	Green     = "#a6e3a1"
-	Teal      = "#94e2d5"
-	Sky       = "#89dceb"
-	Sapphire  = "#74c7ec"
-	Blue      = "#89b4fa"
-	Lavender  = "#b4befe"
-	Text      = "#cdd6f4"
-	SubText1  = "#bac2de"
-	Base      = "#1e1e2e"
+	RosewaterColor = "#f5e0dc"
+	FlamingoColor  = "#f2cdcd"
+	PinkColor      = "#f5c2e7"
+	MauveColor     = "#cba6f7"
+	RedColor       = "#f38ba8"
+	MaroonColor    = "#eba0ac"
+	PeachColor     = "#fab387"
+	YellowColor    = "#f9e2af"
+	GreenColor     = "#a6e3a1"
+	TealColor      = "#94e2d5"
+	SkyColor       = "#89dceb"
+	SapphireColor  = "#74c7ec"
+	BlueColor      = "#89b4fa"
+	LavenderColor  = "#b4befe"
+	TextColor      = "#cdd6f4"
+	SubText1Color  = "#bac2de"
+	BaseColor      = "#1e1e2e"
 
-	Whitesmoke = "#f5f5f5"
+	WhitesmokeColor = "#f5f5f5"
 
-	BorderForegroundColor = Whitesmoke
-	SelectionColor        = Peach
-	TextColor             = Text
-	SubTextColor          = SubText1
+	BorderForegroundColor = WhitesmokeColor
+	SelectionColor        = PeachColor
+	SubTextColor          = SubText1Color
+)
 
-	// Option/View list
-	Main        = "Main"
-	Execute     = "Execute"
-	ExecuteDesc = "Open multi pane terminal window"
-	History     = "View history"
-	HistoryDesc = "View previously executed commands"
-	Exit        = "Exit"
-	ExitDesc    = "Exit the program"
+const (
+	// View list
+	MainView        = "Main"
+	ExecuteView     = "Execute"
+	ExecuteViewDesc = "Open multi pane terminal window"
+	HistoryView     = "View history"
+	HistoryViewDesc = "View previously executed commands"
+	ExitView        = "Exit"
+	ExitViewDesc    = "Exit the program"
 )

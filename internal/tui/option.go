@@ -26,9 +26,9 @@ type option struct {
 // newOption creates a new option
 func newOption() *option {
 	items := []list.Item{
-		optionItem{title: Execute, desc: ExecuteDesc},
-		optionItem{title: History, desc: HistoryDesc},
-		optionItem{title: Exit, desc: ExitDesc},
+		optionItem{title: ExecuteView, desc: ExecuteViewDesc},
+		optionItem{title: HistoryView, desc: HistoryViewDesc},
+		optionItem{title: ExitView, desc: ExitViewDesc},
 	}
 
 	l := list.New(items, newDelegate(), 0, 0)
@@ -76,7 +76,7 @@ func (o *option) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "enter":
 			i, ok := o.list.SelectedItem().(optionItem)
 			if ok {
-				if i.title == Exit {
+				if i.title == ExitView {
 					return o, tea.Quit
 				}
 				return o, func() tea.Msg {

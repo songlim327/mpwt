@@ -16,7 +16,7 @@ func newHistoryDelegate(keys *historyDelegateKeyMap) list.DefaultDelegate {
 		BorderForeground(lipgloss.Color(SelectionColor)).
 		Foreground(lipgloss.Color(SelectionColor)).
 		Padding(0, 0, 0, 1)
-	d.Styles.SelectedDesc = d.Styles.SelectedTitle.Foreground(lipgloss.Color(Rosewater))
+	d.Styles.SelectedDesc = d.Styles.SelectedTitle.Foreground(lipgloss.Color(RosewaterColor))
 
 	// Custom help bindings for the history item delegate
 	help := []key.Binding{keys.launch, keys.back}

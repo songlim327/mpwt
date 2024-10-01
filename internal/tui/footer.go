@@ -30,6 +30,6 @@ func (f *footer) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (f *footer) View() string {
 	return f.style.Width(f.width).AlignHorizontal(lipgloss.Right).Render(
 		// lipgloss.NewStyle().Foreground(lipgloss.Color(Yellow)).Underline(true).Render("Github"),
-		lipgloss.NewStyle().Foreground(lipgloss.Color(Green)).Render("0.1.1"),
+		lipgloss.NewStyle().Foreground(lipgloss.Color(GreenColor)).Render("0.1.1"),
 	)
 }
