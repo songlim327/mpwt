@@ -29,11 +29,12 @@ const (
 
 const (
 	// View list
-	MainView        = "Main"
-	ExecuteView     = "Execute"
-	ExecuteViewDesc = "Open multi pane terminal window"
-	HistoryView     = "View history"
-	HistoryViewDesc = "View previously executed commands"
-	ExitView        = "Exit"
-	ExitViewDesc    = "Exit the program"
+	MainView           = "Main"
+	ExecuteView        = "Execute"
+	ExecuteViewDesc    = "Open multi pane terminal window"
+	FavouriteInputView = "FavouriteInput"
+	HistoryView        = "View history"
+	HistoryViewDesc    = "View previously executed commands"
+	ExitView           = "Exit"
+	ExitViewDesc       = "Exit the program"
 )

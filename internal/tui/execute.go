@@ -108,7 +108,7 @@ func (e *execute) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 			// Add command history to the database
-			err = e.tuiConfig.Repository.InsertHistory(cmds, cmdStr)
+			err = e.tuiConfig.Repository.InsertHistory(cmdStr, cmds)
 			if err != nil {
 				return e, sendStatusUpdate(err.Error())
 			}

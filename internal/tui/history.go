@@ -75,6 +75,17 @@ func (h *history) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				sendStatusUpdate(""),
 			)
 
+		case key.Matches(msg, h.keys.favourite):
+			i, ok := h.list.SelectedItem().(historyItem)
+			if ok {
+				// Show favourite input view
+				return h, tea.Batch(
+					sendFavouriteInputUpdate(i.wtCmd, strings.Split(i.cmds, ",")),
+					sendViewportUpdate(FavouriteInputView),
+					sendStatusUpdate(""),
+				)
+			}
+
 		case key.Matches(msg, h.keys.launch):
 			i, ok := h.list.SelectedItem().(historyItem)
 			if ok {
@@ -85,7 +96,7 @@ func (h *history) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				}
 
 				// Add command history to database
-				err := h.tuiConfig.Repository.InsertHistory(strings.Split(i.cmds, ","), i.wtCmd)
+				err := h.tuiConfig.Repository.InsertHistory(i.wtCmd, strings.Split(i.cmds, ","))
 				if err != nil {
 					return h, sendStatusUpdate(err.Error())
 				}

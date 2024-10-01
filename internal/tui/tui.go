@@ -15,14 +15,15 @@ type TuiConfig struct {
 
 // tui represents the state of main tui window
 type tui struct {
-	width    int
-	height   int
-	viewport string
-	status   *status
-	footer   *footer
-	option   *option
-	execute  *execute
-	history  *history
+	width          int
+	height         int
+	viewport       string
+	status         *status
+	footer         *footer
+	option         *option
+	execute        *execute
+	history        *history
+	favouriteInput *favouriteInput
 }
 
 // viewportMsg represents a message struct to trigger main window view changes
@@ -45,12 +46,13 @@ func newTui(tuiConf *TuiConfig) (*tui, error) {
 	}
 
 	return &tui{
-		viewport: MainView,
-		status:   newStatus(""),
-		footer:   newFooter(),
-		option:   newOption(),
-		execute:  newExecute(tuiConf),
-		history:  h,
+		viewport:       MainView,
+		status:         newStatus(""),
+		footer:         newFooter(),
+		option:         newOption(),
+		execute:        newExecute(tuiConf),
+		history:        h,
+		favouriteInput: newFavouriteInput(tuiConf),
 	}, nil
 }
 
@@ -79,6 +81,11 @@ func (t *tui) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		t.status = s.(*status)
 		return t, cmd
 
+	case favouriteInputMsg:
+		i, cmd := t.favouriteInput.Update(msg)
+		t.favouriteInput = i.(*favouriteInput)
+		return t, cmd
+
 	case tea.KeyMsg:
 		switch t.viewport {
 		case ExecuteView:
@@ -88,6 +95,10 @@ func (t *tui) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case HistoryView:
 			h, cmd := t.history.Update(msg)
 			t.history = h.(*history)
+			return t, cmd
+		case FavouriteInputView:
+			i, cmd := t.favouriteInput.Update(msg)
+			t.favouriteInput = i.(*favouriteInput)
 			return t, cmd
 		default:
 			o, cmd := t.option.Update(msg)
@@ -125,6 +136,10 @@ func (t *tui) View() string {
 		t.history.width = boxWidth - padding*2
 		t.history.height = boxHeight - padding - t.footer.style.GetHeight()
 		view = t.history.View()
+	case FavouriteInputView:
+		t.favouriteInput.width = boxWidth - padding*2
+		t.favouriteInput.height = boxHeight - padding - t.footer.style.GetHeight()
+		view = t.favouriteInput.View()
 	default:
 		t.option.width = boxWidth - padding*2
 		t.option.height = boxHeight - padding - t.footer.style.GetHeight()

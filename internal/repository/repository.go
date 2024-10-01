@@ -21,8 +21,11 @@ var assets embed.FS
 
 // IRepository is the interface for the repository
 type IRepository interface {
-	InsertHistory([]string, string) error
+	InsertHistory(wtCmd string, cmds []string) error
+	InsertFavourite(name string, wtCmd string, cmds []string) error
 	ReadHistory() (Histories, error)
+	ReadFavourite() (Favourites, error)
+	DeleteFavourite(name string) error
 }
 
 // Repository represents a repository for storing and retrieving history of executed commands
@@ -33,6 +36,11 @@ type Repository struct {
 // Histories represents a list of History returned from database
 type Histories []struct {
 	model.History
+}
+
+// Favourites represents a list of Favourite returned from database
+type Favourites []struct {
+	model.Favourite
 }
 
 // NewDbConn creates a new connection to the SQLite database at the specified filepath
@@ -59,6 +67,19 @@ func (r *Repository) Close() {
 	r.db.Close()
 }
 
+// ReadFavourite reads all favourite entries from the database and returns them as a Favourites slice
+func (r *Repository) ReadFavourite() (Favourites, error) {
+	stmt := jetSqlite.SELECT(jetTable.Favourite.AllColumns).FROM(jetTable.Favourite)
+
+	var f Favourites
+	err := stmt.Query(r.db, &f)
+	if err != nil {
+		return nil, fmt.Errorf("failed to read FAVOURITE: %v", err)
+	}
+
+	return f, nil
+}
+
 // ReadHistory reads all history entries from the database and returns them as a Histories slice
 func (r *Repository) ReadHistory() (Histories, error) {
 	stmt := jetSqlite.SELECT(jetTable.History.AllColumns).FROM(jetTable.History)
@@ -72,8 +93,27 @@ func (r *Repository) ReadHistory() (Histories, error) {
 	return h, nil
 }
 
+// InsertFavourite insert a favourite entry into the database
+func (r *Repository) InsertFavourite(name, wtCmd string, cmds []string) error {
+	stmt := jetTable.Favourite.INSERT(
+		jetTable.Favourite.Name,
+		jetTable.Favourite.Wtcmd,
+		jetTable.Favourite.Cmds).
+		MODEL(model.Favourite{
+			Name:  name,
+			Wtcmd: wtCmd,
+			Cmds:  strings.Join(cmds, ","),
+		})
+
+	_, err := stmt.Exec(r.db)
+	if err != nil {
+		return fmt.Errorf("failed to insert FAVOURITE: %v", err)
+	}
+	return nil
+}
+
 // InsertHistory insert a history entry into the database
-func (r *Repository) InsertHistory(cmds []string, wtCmd string) error {
+func (r *Repository) InsertHistory(wtCmd string, cmds []string) error {
 	stmt := jetTable.History.INSERT(
 		jetTable.History.ExecutedAt,
 		jetTable.History.Cmds,
@@ -89,6 +129,17 @@ func (r *Repository) InsertHistory(cmds []string, wtCmd string) error {
 	_, err := stmt.Exec(r.db)
 	if err != nil {
 		return fmt.Errorf("failed to insert HISTORY: %v", err)
+	}
+	return nil
+}
+
+// DeleteFavourite deletes a favourite entry from the database by its name
+func (r *Repository) DeleteFavourite(name string) error {
+	stmt := jetTable.Favourite.DELETE().WHERE(jetTable.Favourite.Name.IN(jetSqlite.String(name)))
+
+	_, err := stmt.Exec(r.db)
+	if err != nil {
+		return fmt.Errorf("failed to delete %s: %v", name, err)
 	}
 	return nil
 }

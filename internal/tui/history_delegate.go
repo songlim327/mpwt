@@ -19,7 +19,7 @@ func newHistoryDelegate(keys *historyDelegateKeyMap) list.DefaultDelegate {
 	d.Styles.SelectedDesc = d.Styles.SelectedTitle.Foreground(lipgloss.Color(RosewaterColor))
 
 	// Custom help bindings for the history item delegate
-	help := []key.Binding{keys.launch, keys.back}
+	help := []key.Binding{keys.launch, keys.favourite, keys.back}
 
 	d.ShortHelpFunc = func() []key.Binding {
 		return help
@@ -34,8 +34,9 @@ func newHistoryDelegate(keys *historyDelegateKeyMap) list.DefaultDelegate {
 
 // historyDelegateKeyMap is a map of key bindings for the history item delegate
 type historyDelegateKeyMap struct {
-	back   key.Binding
-	launch key.Binding
+	back      key.Binding
+	launch    key.Binding
+	favourite key.Binding
 }
 
 // newHistoryDelegateKeyMap creates a new historyDelegateKeyMap with default bindings
@@ -48,6 +49,10 @@ func newHistoryDelegateKeyMap() *historyDelegateKeyMap {
 		launch: key.NewBinding(
 			key.WithKeys("ctrl+s"),
 			key.WithHelp("ctrl+s", "launch"),
+		),
+		favourite: key.NewBinding(
+			key.WithKeys("ctrl+f"),
+			key.WithHelp("ctrl+f", "favourite"),
 		),
 	}
 }
