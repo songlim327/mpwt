@@ -31,6 +31,13 @@ func newStatus(defaultMessage string) *status {
 	}
 }
 
+// sendStatusUpdate sends statusMsg to be captured by the status component
+func sendStatusUpdate(msg string) func() tea.Msg {
+	return func() tea.Msg {
+		return statusMsg{message: msg}
+	}
+}
+
 // Init is the bubbletea package ELM architecture specific functions
 func (s *status) Init() tea.Cmd { return nil }
 

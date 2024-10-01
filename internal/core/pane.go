@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"mpwt/pkg/log"
-	"os/exec"
 	"strings"
 )
 
@@ -33,7 +32,7 @@ var flagsMap = map[string]string{
 }
 
 // OpenWt calculates and open multi pane in windows terminal
-func OpenWt(t *TerminalConfig) error {
+func OpenWt(t *TerminalConfig) (string, error) {
 	wtCmd := []string{"wt"}
 
 	// Append maximize flag to command
@@ -78,7 +77,7 @@ func OpenWt(t *TerminalConfig) error {
 	// Calculate size of each tree
 	treeSizes, err := calculatePaneSize(t.Columns)
 	if err != nil {
-		return fmt.Errorf("failed to calculate sizes for trees: %v", err)
+		return "", fmt.Errorf("failed to calculate sizes for trees: %v", err)
 	}
 
 	for i := 1; i < len(splitCmds); i++ {
@@ -95,7 +94,7 @@ func OpenWt(t *TerminalConfig) error {
 			// Calculate size of each leaf
 			sizes, err := calculatePaneSize(len(splitCmds[i]))
 			if err != nil {
-				return fmt.Errorf("failed to calculate sizes for leaf nodes: %v", err)
+				return "", fmt.Errorf("failed to calculate sizes for leaf nodes: %v", err)
 			}
 
 			// Form leaf command
@@ -122,8 +121,7 @@ func OpenWt(t *TerminalConfig) error {
 	}
 
 	log.Debug(fmt.Sprintf("Full Command: %s", wtCmdStr))
-	cmd := exec.Command("cmd", "/C", wtCmdStr)
-	return cmd.Run()
+	return wtCmdStr, nil
 }
 
 // calculatePaneSize takes an integer (number of panes) and returns a slice of float64

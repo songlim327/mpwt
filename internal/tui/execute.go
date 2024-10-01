@@ -2,6 +2,7 @@ package tui
 
 import (
 	"mpwt/internal/core"
+	"os/exec"
 	"strings"
 
 	"github.com/charmbracelet/bubbles/help"
@@ -13,36 +14,36 @@ import (
 
 // keyMap defines a set of keybindings.
 type keyMap struct {
-	Launch key.Binding
-	Back   key.Binding
-	Quit   key.Binding
+	launch key.Binding
+	back   key.Binding
+	quit   key.Binding
 }
 
 // ShortHelp returns keybindings to be shown in the mini help view
 // It is part of the key.Map interface
 func (k keyMap) ShortHelp() []key.Binding {
-	return []key.Binding{k.Launch, k.Back, k.Quit}
+	return []key.Binding{k.launch, k.back, k.quit}
 }
 
 // FullHelp returns keybindings to be shown in the full help view
 // It is part of the key.Map interface
 func (k keyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
-		{k.Launch, k.Back, k.Quit},
+		{k.launch, k.back, k.quit},
 	}
 }
 
 // keys implements key.Map interface and defines keyMap  of help menu
 var keys = keyMap{
-	Launch: key.NewBinding(
+	launch: key.NewBinding(
 		key.WithKeys("ctrl+s"),
 		key.WithHelp("ctrl+s", "launch"),
 	),
-	Back: key.NewBinding(
+	back: key.NewBinding(
 		key.WithKeys("esc"),
 		key.WithHelp("esc", "back to main menu"),
 	),
-	Quit: key.NewBinding(
+	quit: key.NewBinding(
 		key.WithKeys("ctrl+c"),
 		key.WithHelp("ctrl+c", "quit"),
 	),
@@ -50,25 +51,25 @@ var keys = keyMap{
 
 // execute represents the command execution ui component
 type execute struct {
-	width    int
-	height   int
-	textarea textarea.Model
-	help     help.Model
-	keys     keyMap
-	tc       *core.TerminalConfig
+	width     int
+	height    int
+	textarea  textarea.Model
+	help      help.Model
+	keys      keyMap
+	tuiConfig *TuiConfig
 }
 
 // newExecute creates a new execute view
-func newExecute(tc *core.TerminalConfig) *execute {
+func newExecute(tuiConf *TuiConfig) *execute {
 	ta := textarea.New()
 	ta.Placeholder = "..."
 	ta.Focus()
 
 	return &execute{
-		textarea: ta,
-		help:     help.New(),
-		keys:     keys,
-		tc:       tc,
+		textarea:  ta,
+		help:      help.New(),
+		keys:      keys,
+		tuiConfig: tuiConf,
 	}
 }
 
@@ -82,29 +83,39 @@ func (e *execute) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
 		switch {
-		case key.Matches(msg, e.keys.Quit):
+		case key.Matches(msg, e.keys.quit):
 			return e, tea.Quit
 
-		case key.Matches(msg, e.keys.Back):
+		case key.Matches(msg, e.keys.back):
 			return e, tea.Batch(
 				func() tea.Msg {
 					return viewportMsg{viewport: Main}
 				},
-				func() tea.Msg {
-					return statusMsg{message: ""}
-				},
+				sendStatusUpdate(""),
 			)
 
-		case key.Matches(msg, e.keys.Launch):
-			e.tc.Commands = strings.Split(e.textarea.Value(), "\n")
-			err := core.OpenWt(e.tc)
+		case key.Matches(msg, e.keys.launch):
+			// Split user input and compute the command
+			cmds := strings.Split(e.textarea.Value(), "\n")
+			e.tuiConfig.TerminalConfig.Commands = cmds
+			cmdStr, err := core.OpenWt(e.tuiConfig.TerminalConfig)
 			if err != nil {
-				return e, func() tea.Msg {
-					return statusMsg{message: err.Error()}
-				}
-			} else {
-				return e, tea.Quit
+				return e, sendStatusUpdate(err.Error())
 			}
+
+			// Execute the command
+			cmd := exec.Command("cmd", "/C", cmdStr)
+			if err := cmd.Run(); err != nil {
+				return e, sendStatusUpdate(err.Error())
+			}
+
+			// Add command history to the database
+			err = e.tuiConfig.Repository.InsertHistory(cmds, cmdStr)
+			if err != nil {
+				return e, sendStatusUpdate(err.Error())
+			}
+
+			return e, tea.Quit
 		}
 	}
 

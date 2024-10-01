@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"mpwt/internal/config"
 	"mpwt/internal/core"
+	"mpwt/internal/repository"
 	"mpwt/internal/tui"
 	"mpwt/pkg/log"
 	"os"
@@ -21,7 +22,7 @@ func main() {
 	if conf.Debug {
 		log.NewLog(log.EnvDevelopment)
 	} else {
-		file, err := os.OpenFile("./mpwt.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+		file, err := os.OpenFile(pwd+"/mpwt.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 		if err != nil {
 			panic(fmt.Sprintf("Failed to create log file: %v", err))
 		}
@@ -30,16 +31,27 @@ func main() {
 		log.NewLogWithFile(log.EnvProduction, file)
 	}
 
-	// Initialize terminal configuration
-	terminalConf := &core.TerminalConfig{
-		Maximize:     conf.Maximize,
-		Direction:    conf.Direction,
-		Columns:      conf.Columns,
-		OpenInNewTab: conf.OpenInNewTab,
+	// Initialize database connection
+	r, err := repository.NewDbConn(pwd + "/mpwt.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer r.Close()
+
+	// Initialize tui configuration
+	tuiConf := &tui.TuiConfig{
+		TerminalConfig: &core.TerminalConfig{
+			Maximize:     conf.Maximize,
+			Direction:    conf.Direction,
+			Columns:      conf.Columns,
+			OpenInNewTab: conf.OpenInNewTab,
+		},
+		Repository: r,
 	}
 
 	// Start terminal application
-	err = tui.InitTea(terminalConf)
+	err = tui.InitTea(tuiConf)
 	if err != nil {
 		log.Fatal(err)
 	}

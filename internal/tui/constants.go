@@ -31,6 +31,8 @@ const (
 	Main        = "Main"
 	Execute     = "Execute"
 	ExecuteDesc = "Open multi pane terminal window"
+	History     = "View history"
+	HistoryDesc = "View previously executed commands"
 	Exit        = "Exit"
 	ExitDesc    = "Exit the program"
 )

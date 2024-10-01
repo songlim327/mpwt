@@ -25,14 +25,16 @@ type option struct {
 
 // newOption creates a new option
 func newOption() *option {
-	var items = []list.Item{
+	items := []list.Item{
 		item{title: Execute, desc: ExecuteDesc},
+		item{title: History, desc: HistoryDesc},
 		item{title: Exit, desc: ExitDesc},
 	}
 
 	l := list.New(items, newDelegate(), 0, 0)
 	l.Title = "Welcome to MPWT, choose your option below:"
 	l.SetShowStatusBar(false)
+	l.SetFilteringEnabled(false)
 	l.Styles.Title = titleStyle
 
 	return &option{list: l}
