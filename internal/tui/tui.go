@@ -30,6 +30,13 @@ type viewportMsg struct {
 	viewport string
 }
 
+// sendViewportUpdate send viewportMsg which to be captured by main window
+func sendViewportUpdate(viewport string) func() tea.Msg {
+	return func() tea.Msg {
+		return viewportMsg{viewport: viewport}
+	}
+}
+
 // newTui creates a new tui (main window view)
 func newTui(tuiConf *TuiConfig) (*tui, error) {
 	h, err := newHistory(tuiConf)

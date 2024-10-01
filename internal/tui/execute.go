@@ -88,9 +88,7 @@ func (e *execute) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, e.keys.back):
 			return e, tea.Batch(
-				func() tea.Msg {
-					return viewportMsg{viewport: Main}
-				},
+				sendViewportUpdate(Main),
 				sendStatusUpdate(""),
 			)
 
