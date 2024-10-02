@@ -10,15 +10,6 @@ import (
 	tea "github.com/charmbracelet/bubbletea"
 )
 
-// historyItem represents custom history item for list.Model
-type historyItem struct {
-	title, desc, cmds, wtCmd string
-}
-
-func (i historyItem) Title() string       { return i.title }
-func (i historyItem) Description() string { return i.desc }
-func (i historyItem) FilterValue() string { return i.title }
-
 // history represents the state of history component
 type history struct {
 	width     int
@@ -39,7 +30,7 @@ func newHistory(tuiConf *TuiConfig) (*history, error) {
 	}
 
 	for _, h := range histories {
-		items = append(items, historyItem{
+		items = append(items, cmdItem{
 			title: fmt.Sprintf("(%d panes) %s...", h.PaneCount, h.Cmds[:20]),
 			desc:  h.ExecutedAt.Format("02/01/2006 15:04:00"),
 			cmds:  h.Cmds,
@@ -76,7 +67,7 @@ func (h *history) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			)
 
 		case key.Matches(msg, h.keys.favourite):
-			i, ok := h.list.SelectedItem().(historyItem)
+			i, ok := h.list.SelectedItem().(cmdItem)
 			if ok {
 				// Show favourite input view
 				return h, tea.Batch(
@@ -87,7 +78,7 @@ func (h *history) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 
 		case key.Matches(msg, h.keys.launch):
-			i, ok := h.list.SelectedItem().(historyItem)
+			i, ok := h.list.SelectedItem().(cmdItem)
 			if ok {
 				// Execute the command
 				cmd := exec.Command("cmd", "/C", i.wtCmd)

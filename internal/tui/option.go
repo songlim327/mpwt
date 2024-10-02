@@ -10,12 +10,6 @@ var (
 	titleStyle = lipgloss.NewStyle().Bold(true).Underline(true)
 )
 
-type optionItem struct {
-	title, desc string
-}
-
-func (i optionItem) FilterValue() string { return i.title }
-
 // option represents the the main menu selection component
 type option struct {
 	list   list.Model
@@ -31,7 +25,7 @@ func newOption() *option {
 		optionItem{title: ExitView, desc: ExitViewDesc},
 	}
 
-	l := list.New(items, newDelegate(), 0, 0)
+	l := list.New(items, newOptionDelegate(), 0, 0)
 	l.Title = "Welcome to MPWT, choose your option below:"
 	l.SetShowStatusBar(false)
 	l.SetFilteringEnabled(false)
