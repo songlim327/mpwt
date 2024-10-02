@@ -12,8 +12,8 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
-// keyMap defines a set of keybindings.
-type keyMap struct {
+// executeKeyMap defines a set of keybindings for the execute view
+type executeKeyMap struct {
 	launch key.Binding
 	back   key.Binding
 	quit   key.Binding
@@ -21,32 +21,16 @@ type keyMap struct {
 
 // ShortHelp returns keybindings to be shown in the mini help view
 // It is part of the key.Map interface
-func (k keyMap) ShortHelp() []key.Binding {
+func (k executeKeyMap) ShortHelp() []key.Binding {
 	return []key.Binding{k.launch, k.back, k.quit}
 }
 
 // FullHelp returns keybindings to be shown in the full help view
 // It is part of the key.Map interface
-func (k keyMap) FullHelp() [][]key.Binding {
+func (k executeKeyMap) FullHelp() [][]key.Binding {
 	return [][]key.Binding{
 		{k.launch, k.back, k.quit},
 	}
-}
-
-// keys implements key.Map interface and defines keyMap  of help menu
-var keys = keyMap{
-	launch: key.NewBinding(
-		key.WithKeys("ctrl+s"),
-		key.WithHelp("ctrl+s", "launch"),
-	),
-	back: key.NewBinding(
-		key.WithKeys("esc"),
-		key.WithHelp("esc", "back to main menu"),
-	),
-	quit: key.NewBinding(
-		key.WithKeys("ctrl+c"),
-		key.WithHelp("ctrl+c", "quit"),
-	),
 }
 
 // execute represents the command execution ui component
@@ -55,7 +39,7 @@ type execute struct {
 	height    int
 	textarea  textarea.Model
 	help      help.Model
-	keys      keyMap
+	keys      executeKeyMap
 	tuiConfig *TuiConfig
 }
 
@@ -64,6 +48,21 @@ func newExecute(tuiConf *TuiConfig) *execute {
 	ta := textarea.New()
 	ta.Placeholder = "..."
 	ta.Focus()
+
+	var keys = executeKeyMap{
+		launch: key.NewBinding(
+			key.WithKeys("ctrl+s"),
+			key.WithHelp("ctrl+s", "launch"),
+		),
+		back: key.NewBinding(
+			key.WithKeys("esc"),
+			key.WithHelp("esc", "back to main menu"),
+		),
+		quit: key.NewBinding(
+			key.WithKeys("ctrl+c"),
+			key.WithHelp("ctrl+c", "quit"),
+		),
+	}
 
 	return &execute{
 		textarea:  ta,
