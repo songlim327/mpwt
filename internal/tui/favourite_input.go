@@ -60,8 +60,8 @@ func newFavouriteInput(tuiConf *TuiConfig) *favouriteInput {
 
 	keys := favouriteInputKeyMap{
 		save: key.NewBinding(
-			key.WithKeys("ctrl+s"),
-			key.WithHelp("ctrl+s", "save"),
+			key.WithKeys("enter", "ctrl+s"),
+			key.WithHelp("enter/ctrl+s", "save"),
 		),
 		back: key.NewBinding(
 			key.WithKeys("esc"),
@@ -123,7 +123,7 @@ func (f *favouriteInput) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			} else {
 				return f, tea.Batch(
 					sendViewportUpdate(MainView),
-					sendStatusUpdate(""),
+					sendStatusUpdate("Favourite saved successfully"),
 				)
 			}
 		}
