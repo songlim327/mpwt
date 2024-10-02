@@ -21,6 +21,7 @@ type option struct {
 func newOption() *option {
 	items := []list.Item{
 		optionItem{title: ExecuteView, desc: ExecuteViewDesc},
+		optionItem{title: FavouriteView, desc: FavouriteViewDesc},
 		optionItem{title: HistoryView, desc: HistoryViewDesc},
 		optionItem{title: ExitView, desc: ExitViewDesc},
 	}

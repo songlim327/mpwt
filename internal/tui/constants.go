@@ -32,6 +32,8 @@ const (
 	MainView           = "Main"
 	ExecuteView        = "Execute"
 	ExecuteViewDesc    = "Open multi pane terminal window"
+	FavouriteView      = "Favourite"
+	FavouriteViewDesc  = "Manage your favourite commands"
 	FavouriteInputView = "FavouriteInput"
 	HistoryView        = "View history"
 	HistoryViewDesc    = "View previously executed commands"

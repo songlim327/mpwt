@@ -23,6 +23,7 @@ type tui struct {
 	option         *option
 	execute        *execute
 	history        *history
+	favourite      *favourite
 	favouriteInput *favouriteInput
 }
 
@@ -45,6 +46,11 @@ func newTui(tuiConf *TuiConfig) (*tui, error) {
 		return nil, err
 	}
 
+	f, err := newFavourite(tuiConf)
+	if err != nil {
+		return nil, err
+	}
+
 	return &tui{
 		viewport:       MainView,
 		status:         newStatus(""),
@@ -52,6 +58,7 @@ func newTui(tuiConf *TuiConfig) (*tui, error) {
 		option:         newOption(),
 		execute:        newExecute(tuiConf),
 		history:        h,
+		favourite:      f,
 		favouriteInput: newFavouriteInput(tuiConf),
 	}, nil
 }
@@ -81,6 +88,11 @@ func (t *tui) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		t.status = s.(*status)
 		return t, cmd
 
+	case favouriteMsg:
+		f, cmd := t.favourite.Update(msg)
+		t.favourite = f.(*favourite)
+		return t, cmd
+
 	case favouriteInputMsg:
 		i, cmd := t.favouriteInput.Update(msg)
 		t.favouriteInput = i.(*favouriteInput)
@@ -95,6 +107,10 @@ func (t *tui) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case HistoryView:
 			h, cmd := t.history.Update(msg)
 			t.history = h.(*history)
+			return t, cmd
+		case FavouriteView:
+			f, cmd := t.favourite.Update(msg)
+			t.favourite = f.(*favourite)
 			return t, cmd
 		case FavouriteInputView:
 			i, cmd := t.favouriteInput.Update(msg)
@@ -136,6 +152,10 @@ func (t *tui) View() string {
 		t.history.width = boxWidth - padding*2
 		t.history.height = boxHeight - padding - t.footer.style.GetHeight()
 		view = t.history.View()
+	case FavouriteView:
+		t.favourite.width = boxWidth - padding*2
+		t.favourite.height = boxHeight - padding - t.footer.style.GetHeight()
+		view = t.favourite.View()
 	case FavouriteInputView:
 		t.favouriteInput.width = boxWidth - padding*2
 		t.favouriteInput.height = boxHeight - padding - t.footer.style.GetHeight()

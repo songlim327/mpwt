@@ -122,6 +122,7 @@ func (f *favouriteInput) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				return f, sendStatusUpdate(err.Error())
 			} else {
 				return f, tea.Batch(
+					sendFavouriteUpdate(),
 					sendViewportUpdate(MainView),
 					sendStatusUpdate("Favourite saved successfully"),
 				)
