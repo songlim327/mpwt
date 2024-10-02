@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"mpwt/internal/config"
 	"mpwt/internal/core"
@@ -11,17 +12,18 @@ import (
 )
 
 func main() {
-	// Read config from yaml config file
-	pwd, _ := os.Getwd()
-	conf, err := config.NewConfig(pwd + "/internal/config/config.dev.yaml")
-	if err != nil {
-		panic(err)
-	}
+	// Identify application enviroment (development/production)
+	debug := flag.Bool("debug", false, "Enable debug mode")
+	flag.Parse()
 
-	// Intialize logger
-	if conf.Debug {
+	// Intialize logger and set config file path based on application environment
+	pwd, _ := os.Getwd()
+	configPath := pwd
+	if *debug {
+		configPath += "/config/config.dev.yaml"
 		log.NewLog(log.EnvDevelopment)
 	} else {
+		configPath += "/config.yaml"
 		file, err := os.OpenFile(pwd+"/mpwt.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 		if err != nil {
 			panic(fmt.Sprintf("Failed to create log file: %v", err))
@@ -29,6 +31,12 @@ func main() {
 		defer file.Close()
 
 		log.NewLogWithFile(log.EnvProduction, file)
+	}
+
+	// Read config from yaml config file
+	conf, err := config.NewConfig(configPath)
+	if err != nil {
+		panic(err)
 	}
 
 	// Initialize database connection

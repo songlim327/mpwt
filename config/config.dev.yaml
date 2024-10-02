@@ -1,4 +1,4 @@
 maximize: true
-direction: horizontal/vertical
+direction: horizontal
 columns: 2
 open_in_new_tab: true

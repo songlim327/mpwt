@@ -10,7 +10,6 @@ import (
 
 // Config represents the configuration
 type Config struct {
-	Debug        bool   `yaml:"debug"`
 	Maximize     bool   `yaml:"maximize"`
 	Direction    string `yaml:"direction"`
 	Columns      int    `yaml:"columns"`

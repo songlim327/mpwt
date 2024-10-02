@@ -1,0 +1,13 @@
+# maximize only works in new windows (set open_in_new_tab to false)
+# if open_in_new_tab is set to true
+# it will be ignored and size will follow current window size
+maximize: true
+
+# Available in two directions: horizontal or vertical
+direction: horizontal
+
+# Number of fixed columns, rows will be automatically calculated based on this value
+columns: 2
+
+# If set to false, the terminal will open in a new window
+open_in_new_tab: true
