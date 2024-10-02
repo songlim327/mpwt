@@ -1,6 +1,7 @@
 package config
 
 import (
+	"embed"
 	"errors"
 	"fmt"
 	"os"
@@ -16,9 +17,26 @@ type Config struct {
 	OpenInNewTab bool   `yaml:"open_in_new_tab"`
 }
 
+//go:embed config.yaml
+var config embed.FS
+
 // NewConfig creates a new Config instance by parsing the yaml configuration file
-func NewConfig(configFile string) (*Config, error) {
-	buf, err := os.ReadFile(configFile)
+func NewConfig(configPath string) (*Config, error) {
+	// Check if config file exist, if not create a new one from template
+	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+		configBytes, err := config.ReadFile("config.yaml")
+		if err != nil {
+			return nil, fmt.Errorf("failed to retrieve config template file: %v", err)
+		}
+
+		err = os.WriteFile("config.yaml", configBytes, 0644)
+		if err != nil {
+			return nil, fmt.Errorf("failed to intialize config file: %v", err)
+		}
+	}
+
+	// Read from config file
+	buf, err := os.ReadFile(configPath)
 	if err != nil {
 		return nil, err
 	}
