@@ -82,7 +82,7 @@ func (r *Repository) ReadFavourite() (Favourites, error) {
 
 // ReadHistory reads all history entries from the database and returns them as a Histories slice
 func (r *Repository) ReadHistory() (Histories, error) {
-	stmt := jetSqlite.SELECT(jetTable.History.AllColumns).FROM(jetTable.History)
+	stmt := jetSqlite.SELECT(jetTable.History.AllColumns).FROM(jetTable.History).ORDER_BY(jetTable.History.ExecutedAt.DESC())
 
 	var h Histories
 	err := stmt.Query(r.db, &h)
