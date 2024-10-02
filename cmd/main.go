@@ -36,13 +36,13 @@ func main() {
 	// Read config from yaml config file
 	conf, err := config.NewConfig(configPath)
 	if err != nil {
-		panic(err)
+		log.Fatal(fmt.Errorf("failed to read config file: %v", err))
 	}
 
 	// Initialize database connection
 	r, err := repository.NewDbConn(pwd + "/mpwt.db")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(fmt.Errorf("failed to initialize sqlite: %v", err))
 	}
 
 	defer r.Close()
@@ -61,6 +61,6 @@ func main() {
 	// Start terminal application
 	err = tui.InitTea(tuiConf)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal(fmt.Errorf("failed to run tui: %v", err))
 	}
 }
