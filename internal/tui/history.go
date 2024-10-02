@@ -30,8 +30,13 @@ func newHistory(tuiConf *TuiConfig) (*history, error) {
 	}
 
 	for _, h := range histories {
+		maxCmdsLength := 20
+		shortCmds := h.Cmds
+		if len(h.Cmds) > maxCmdsLength {
+			shortCmds = h.Cmds[:maxCmdsLength]
+		}
 		items = append(items, cmdItem{
-			title: fmt.Sprintf("(%d panes) %s...", h.PaneCount, h.Cmds[:20]),
+			title: fmt.Sprintf("(%d panes) %s...", h.PaneCount, shortCmds),
 			desc:  h.ExecutedAt.Format("02/01/2006 15:04:00"),
 			cmds:  h.Cmds,
 			wtCmd: h.Wtcmd,
