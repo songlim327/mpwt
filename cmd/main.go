@@ -34,7 +34,8 @@ func main() {
 	}
 
 	// Read config from yaml config file
-	conf, err := config.NewConfig(configPath)
+	mgr := config.NewConfigManager(configPath)
+	conf, err := mgr.NewConfig()
 	if err != nil {
 		log.Fatal(fmt.Errorf("failed to read config file: %v", err))
 	}
@@ -56,6 +57,7 @@ func main() {
 			OpenInNewTab: conf.OpenInNewTab,
 		},
 		Repository: r,
+		ConfigMgr: mgr,
 	}
 
 	// Start terminal application

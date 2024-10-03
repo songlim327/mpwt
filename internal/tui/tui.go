@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"mpwt/internal/config"
 	"mpwt/internal/core"
 	"mpwt/internal/repository"
 
@@ -11,6 +12,7 @@ import (
 type TuiConfig struct {
 	TerminalConfig *core.TerminalConfig
 	Repository     repository.IRepository
+	ConfigMgr      config.IConfigManager
 }
 
 // tui represents the state of main tui window
@@ -25,6 +27,7 @@ type tui struct {
 	history        *history
 	favourite      *favourite
 	favouriteInput *favouriteInput
+	settings       *settings
 }
 
 // viewportMsg represents a message struct to trigger main window view changes
@@ -51,6 +54,11 @@ func newTui(tuiConf *TuiConfig) (*tui, error) {
 		return nil, err
 	}
 
+	s, err := newSettings(tuiConf)
+	if err != nil {
+		return nil, err
+	}
+
 	return &tui{
 		viewport:       MainView,
 		status:         newStatus(""),
@@ -60,6 +68,7 @@ func newTui(tuiConf *TuiConfig) (*tui, error) {
 		history:        h,
 		favourite:      f,
 		favouriteInput: newFavouriteInput(tuiConf),
+		settings:       s,
 	}, nil
 }
 
@@ -116,6 +125,10 @@ func (t *tui) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			i, cmd := t.favouriteInput.Update(msg)
 			t.favouriteInput = i.(*favouriteInput)
 			return t, cmd
+		case SettingsView:
+			s, cmd := t.settings.Update(msg)
+			t.settings = s.(*settings)
+			return t, cmd
 		default:
 			o, cmd := t.option.Update(msg)
 			t.option = o.(*option)
@@ -160,6 +173,10 @@ func (t *tui) View() string {
 		t.favouriteInput.width = boxWidth - padding*2
 		t.favouriteInput.height = boxHeight - padding - t.footer.style.GetHeight()
 		view = t.favouriteInput.View()
+	case SettingsView:
+		t.settings.width = boxWidth - padding*2
+		t.settings.height = boxHeight - padding - t.footer.style.GetHeight()
+		view = t.settings.View()
 	default:
 		t.option.width = boxWidth - padding*2
 		t.option.height = boxHeight - padding - t.footer.style.GetHeight()

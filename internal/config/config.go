@@ -1,6 +1,7 @@
 package config
 
 import (
+	"bytes"
 	"embed"
 	"errors"
 	"fmt"
@@ -8,6 +9,17 @@ import (
 
 	"gopkg.in/yaml.v3"
 )
+
+//go:embed config.yaml
+var config embed.FS
+
+// IConfigManager defines an interface for handling config
+type IConfigManager interface {
+	NewConfig() (*Config, error)
+	ReadConfig() (*Config, error)
+	ReadConfigRaw() ([]byte, error)
+	WriteConfig(config string) error
+}
 
 // Config represents the configuration
 type Config struct {
@@ -17,13 +29,21 @@ type Config struct {
 	OpenInNewTab bool   `yaml:"open_in_new_tab"`
 }
 
-//go:embed config.yaml
-var config embed.FS
+// ConfigManager implements the IConfigManager interface for the app config
+type ConfigManager struct {
+	ConfigPath string
+}
+
+// NewConfigManager creates a new ConfigManager
+func NewConfigManager(configPath string) *ConfigManager {
+	return &ConfigManager{ConfigPath: configPath}
+}
 
 // NewConfig creates a new Config instance by parsing the yaml configuration file
-func NewConfig(configPath string) (*Config, error) {
-	// Check if config file exist, if not create a new one from template
-	if _, err := os.Stat(configPath); os.IsNotExist(err) {
+// It will check if a config file exists, if not create a new one from template
+// After the check, it will automatically call ReadConfig to read the config file
+func (m *ConfigManager) NewConfig() (*Config, error) {
+	if _, err := os.Stat(m.ConfigPath); os.IsNotExist(err) {
 		configBytes, err := config.ReadFile("config.yaml")
 		if err != nil {
 			return nil, fmt.Errorf("failed to retrieve config template file: %v", err)
@@ -35,8 +55,12 @@ func NewConfig(configPath string) (*Config, error) {
 		}
 	}
 
-	// Read from config file
-	buf, err := os.ReadFile(configPath)
+	return m.ReadConfig()
+}
+
+// ReadConfig reads config file and marshals it into Config
+func (m *ConfigManager) ReadConfig() (*Config, error) {
+	buf, err := m.ReadConfigRaw()
 	if err != nil {
 		return nil, err
 	}
@@ -53,6 +77,23 @@ func NewConfig(configPath string) (*Config, error) {
 	}
 
 	return c, err
+}
+
+// WriteConfig write config string to the config file
+func (m *ConfigManager) WriteConfig(config string) error {
+	// Replace CRLF to LF
+	buf := bytes.ReplaceAll([]byte(config), []byte("\n"), []byte("\r\n"))
+
+	err := os.WriteFile(m.ConfigPath, buf, 0644)
+	if err != nil {
+		return fmt.Errorf("failed to overwrite config file: %v", err)
+	}
+	return nil
+}
+
+// ReadConfigRaw reads config file as raw bytes
+func (m *ConfigManager) ReadConfigRaw() ([]byte, error) {
+	return os.ReadFile(m.ConfigPath)
 }
 
 // validate validates the configuration

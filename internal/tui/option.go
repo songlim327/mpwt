@@ -23,6 +23,7 @@ func newOption() *option {
 		optionItem{title: ExecuteView, desc: ExecuteViewDesc},
 		optionItem{title: FavouriteView, desc: FavouriteViewDesc},
 		optionItem{title: HistoryView, desc: HistoryViewDesc},
+		optionItem{title: SettingsView, desc: SettingsViewDesc},
 		optionItem{title: ExitView, desc: ExitViewDesc},
 	}
 

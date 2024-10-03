@@ -31,12 +31,14 @@ const (
 	// View list
 	MainView           = "Main"
 	ExecuteView        = "Execute"
-	ExecuteViewDesc    = "Open multi pane terminal window"
+	ExecuteViewDesc    = "open multi pane terminal window"
 	FavouriteView      = "Favourite"
-	FavouriteViewDesc  = "Manage your favourite commands"
+	FavouriteViewDesc  = "manage your favourite commands"
 	FavouriteInputView = "FavouriteInput"
 	HistoryView        = "View history"
-	HistoryViewDesc    = "View previously executed commands"
+	HistoryViewDesc    = "view previously executed commands"
+	SettingsView       = "Settings"
+	SettingsViewDesc   = "modify application settings"
 	ExitView           = "Exit"
-	ExitViewDesc       = "Exit the program"
+	ExitViewDesc       = "exit the program"
 )
