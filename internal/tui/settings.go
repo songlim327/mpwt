@@ -106,6 +106,7 @@ func (s *settings) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 			return s, tea.Batch(
 				sendStatusUpdate("settings updated"),
+				sendReloadUpdate(),
 				sendViewportUpdate(MainView),
 			)
 		}

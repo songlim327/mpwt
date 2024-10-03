@@ -9,6 +9,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 )
 
+// TuiConfig represents the configuration for tui application
 type TuiConfig struct {
 	TerminalConfig *core.TerminalConfig
 	Repository     repository.IRepository
@@ -20,6 +21,7 @@ type tui struct {
 	width          int
 	height         int
 	viewport       string
+	TuiConfig      *TuiConfig
 	status         *status
 	footer         *footer
 	option         *option
@@ -35,10 +37,20 @@ type viewportMsg struct {
 	viewport string
 }
 
+// reloadMsg represents a message struct to trigger main window view reload after config changes
+type reloadMsg struct{}
+
 // sendViewportUpdate send viewportMsg which to be captured by main window
 func sendViewportUpdate(viewport string) func() tea.Msg {
 	return func() tea.Msg {
 		return viewportMsg{viewport: viewport}
+	}
+}
+
+// sendReloadUpdate send reloadMsg which to be captured by main window and reload application state
+func sendReloadUpdate() func() tea.Msg {
+	return func() tea.Msg {
+		return reloadMsg{}
 	}
 }
 
@@ -61,6 +73,7 @@ func newTui(tuiConf *TuiConfig) (*tui, error) {
 
 	return &tui{
 		viewport:       MainView,
+		TuiConfig:      tuiConf,
 		status:         newStatus(""),
 		footer:         newFooter(),
 		option:         newOption(),
@@ -106,6 +119,25 @@ func (t *tui) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		i, cmd := t.favouriteInput.Update(msg)
 		t.favouriteInput = i.(*favouriteInput)
 		return t, cmd
+
+	case reloadMsg:
+		// Read config from file
+		conf, err := t.TuiConfig.ConfigMgr.ReadConfig()
+		if err != nil {
+			return t, sendStatusUpdate(err.Error())
+		}
+
+		// Reload terminal application config
+		t.TuiConfig.TerminalConfig = &core.TerminalConfig{
+			Maximize:     conf.Maximize,
+			Direction:    conf.Direction,
+			Columns:      conf.Columns,
+			OpenInNewTab: conf.OpenInNewTab,
+		}
+
+		// Recreate view requiring terminal config
+		t.favouriteInput = newFavouriteInput(t.TuiConfig)
+		t.execute = newExecute(t.TuiConfig)
 
 	case tea.KeyMsg:
 		switch t.viewport {
