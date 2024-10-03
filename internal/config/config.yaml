@@ -1,13 +1,14 @@
-# maximize only works in new windows (set open_in_new_tab to false)
-# if open_in_new_tab is set to true
-# it will be ignored and size will follow current window size
+# Controls whether the terminal maximizes when opened
+# Note: This feature only works when `open_in_new_tab` is set to false
+# If `open_in_new_tab` is true, this setting is ignored
+# and the terminal will follow the current terminal size
 maximize: true
 
-# Available in two directions: horizontal or vertical
+# Determines the orientation of the terminal pane arrangement (horizontal or vertical).
 direction: horizontal
 
-# Number of fixed columns, rows will be automatically calculated based on this value
+# Defines the number of fixed columns in the terminal layout; rows are auto-calculated.
 columns: 2
 
-# If set to false, the terminal will open in a new window
+# Specifies if the terminal should open in a new tab or a new window. If set to false, the app will open in new windows and the maximize effect will take place if set to true.
 open_in_new_tab: true
