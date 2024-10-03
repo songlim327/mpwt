@@ -92,6 +92,16 @@ func sendFavouriteInputUpdate(wtCmd string, cmds []string) func() tea.Msg {
 	}
 }
 
+// setWidth sets the width of the favouriteInput component
+func (f *favouriteInput) setWidth(width int) {
+	f.width = width
+}
+
+// setHeight sets the height of the favouriteInput component
+func (f *favouriteInput) setHeight(height int) {
+	f.height = height
+}
+
 // Init is the bubbletea package ELM architecture specific functions
 func (f *favouriteInput) Init() tea.Cmd {
 	return nil
@@ -111,7 +121,7 @@ func (f *favouriteInput) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, f.keys.back):
 			return f, tea.Batch(
-				sendViewportUpdate(MainView),
+				sendViewStrUpdate(MainView),
 				sendStatusUpdate(""),
 			)
 
@@ -123,7 +133,7 @@ func (f *favouriteInput) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			} else {
 				return f, tea.Batch(
 					sendFavouriteUpdate(),
-					sendViewportUpdate(MainView),
+					sendViewStrUpdate(MainView),
 					sendStatusUpdate("Favourite saved successfully"),
 				)
 			}

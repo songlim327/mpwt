@@ -69,6 +69,16 @@ func loadItems(tuiConf *TuiConfig) ([]list.Item, error) {
 	return items, nil
 }
 
+// setWidth sets the width of the favourite component
+func (f *favourite) setWidth(width int) {
+	f.width = width
+}
+
+// setHeight sets the height of the favourite component
+func (f *favourite) setHeight(height int) {
+	f.height = height
+}
+
 // Init is the bubbletea package ELM architecture specific functions
 func (f *favourite) Init() tea.Cmd {
 	return nil
@@ -89,7 +99,7 @@ func (f *favourite) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 		case key.Matches(msg, f.keys.back):
 			return f, tea.Batch(
-				sendViewportUpdate(MainView),
+				sendViewStrUpdate(MainView),
 				sendStatusUpdate(""),
 			)
 

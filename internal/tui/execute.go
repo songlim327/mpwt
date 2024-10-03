@@ -72,6 +72,16 @@ func newExecute(tuiConf *TuiConfig) *execute {
 	}
 }
 
+// setWidth sets the width of the execute component
+func (e *execute) setWidth(width int) {
+	e.width = width
+}
+
+// setHeight sets the height of the execute component
+func (e *execute) setHeight(height int) {
+	e.height = height
+}
+
 // Init is the bubbletea package ELM architecture specific functions
 func (e *execute) Init() tea.Cmd {
 	return nil
@@ -87,7 +97,7 @@ func (e *execute) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, e.keys.back):
 			return e, tea.Batch(
-				sendViewportUpdate(MainView),
+				sendViewStrUpdate(MainView),
 				sendStatusUpdate(""),
 			)
 

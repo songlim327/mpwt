@@ -79,6 +79,16 @@ func newSettings(tuiConf *TuiConfig) (*settings, error) {
 	}, nil
 }
 
+// setWidth sets the width of the settings component
+func (s *settings) setWidth(width int) {
+	s.width = width
+}
+
+// setHeight sets the height of the settings component
+func (s *settings) setHeight(height int) {
+	s.height = height
+}
+
 // Init is the bubbletea package ELM architecture specific functions
 func (s *settings) Init() tea.Cmd {
 	return nil
@@ -94,7 +104,7 @@ func (s *settings) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, s.keys.back):
 			return s, tea.Batch(
-				sendViewportUpdate(MainView),
+				sendViewStrUpdate(MainView),
 				sendStatusUpdate(""),
 			)
 
@@ -107,7 +117,7 @@ func (s *settings) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return s, tea.Batch(
 				sendStatusUpdate("settings updated"),
 				sendReloadUpdate(),
-				sendViewportUpdate(MainView),
+				sendViewStrUpdate(MainView),
 			)
 		}
 	}

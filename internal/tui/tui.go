@@ -16,11 +16,24 @@ type TuiConfig struct {
 	ConfigMgr      config.IConfigManager
 }
 
+// View extends tea.Model interface
+// Add width and height setter
+type View interface {
+	setWidth(int)
+	setHeight(int)
+
+	// tea.Model interface functions
+	Init() tea.Cmd
+	Update(tea.Msg) (tea.Model, tea.Cmd)
+	View() string
+}
+
 // tui represents the state of main tui window
 type tui struct {
 	width          int
 	height         int
-	viewport       string
+	viewStr        string
+	view           View
 	TuiConfig      *TuiConfig
 	status         *status
 	footer         *footer
@@ -32,18 +45,18 @@ type tui struct {
 	settings       *settings
 }
 
-// viewportMsg represents a message struct to trigger main window view changes
-type viewportMsg struct {
-	viewport string
+// viewStrMsg represents a message struct to trigger main window view changes
+type viewStrMsg struct {
+	viewStr string
 }
 
 // reloadMsg represents a message struct to trigger main window view reload after config changes
 type reloadMsg struct{}
 
-// sendViewportUpdate send viewportMsg which to be captured by main window
-func sendViewportUpdate(viewport string) func() tea.Msg {
+// sendViewStrUpdate send viewportMsg which to be captured by main window
+func sendViewStrUpdate(viewStr string) func() tea.Msg {
 	return func() tea.Msg {
-		return viewportMsg{viewport: viewport}
+		return viewStrMsg{viewStr: viewStr}
 	}
 }
 
@@ -56,6 +69,7 @@ func sendReloadUpdate() func() tea.Msg {
 
 // newTui creates a new tui (main window view)
 func newTui(tuiConf *TuiConfig) (*tui, error) {
+	o := newOption()
 	h, err := newHistory(tuiConf)
 	if err != nil {
 		return nil, err
@@ -72,17 +86,36 @@ func newTui(tuiConf *TuiConfig) (*tui, error) {
 	}
 
 	return &tui{
-		viewport:       MainView,
+		viewStr:        MainView,
+		view:           o, // default view: option
 		TuiConfig:      tuiConf,
 		status:         newStatus(""),
 		footer:         newFooter(),
-		option:         newOption(),
+		option:         o,
 		execute:        newExecute(tuiConf),
 		history:        h,
 		favourite:      f,
 		favouriteInput: newFavouriteInput(tuiConf),
 		settings:       s,
 	}, nil
+}
+
+// mapViewStrToView is a helper function which maps the viewport to a View
+func (t *tui) mapViewStrToView(viewStr string) View {
+	switch viewStr {
+	case ExecuteView:
+		return t.execute
+	case HistoryView:
+		return t.history
+	case FavouriteView:
+		return t.favourite
+	case FavouriteInputView:
+		return t.favouriteInput
+	case SettingsView:
+		return t.settings
+	default:
+		return t.option
+	}
 }
 
 // Init is the bubbletea package ELM architecture specific functions
@@ -97,9 +130,10 @@ func (t *tui) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		t.width = msg.Width
 		t.height = msg.Height
 
-	case viewportMsg:
-		t.viewport = msg.viewport
-		if t.viewport == ExecuteView {
+	case viewStrMsg:
+		t.viewStr = msg.viewStr
+		t.view = t.mapViewStrToView(msg.viewStr)
+		if t.viewStr == ExecuteView {
 			s, cmd := t.status.Update(statusMsg{message: "Each line of command will spawn a new pane in terminal"})
 			t.status = s.(*status)
 			return t, cmd
@@ -139,32 +173,10 @@ func (t *tui) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		t.execute = newExecute(t.TuiConfig)
 
 	case tea.KeyMsg:
-		switch t.viewport {
-		case ExecuteView:
-			e, cmd := t.execute.Update(msg)
-			t.execute = e.(*execute)
-			return t, cmd
-		case HistoryView:
-			h, cmd := t.history.Update(msg)
-			t.history = h.(*history)
-			return t, cmd
-		case FavouriteView:
-			f, cmd := t.favourite.Update(msg)
-			t.favourite = f.(*favourite)
-			return t, cmd
-		case FavouriteInputView:
-			i, cmd := t.favouriteInput.Update(msg)
-			t.favouriteInput = i.(*favouriteInput)
-			return t, cmd
-		case SettingsView:
-			s, cmd := t.settings.Update(msg)
-			t.settings = s.(*settings)
-			return t, cmd
-		default:
-			o, cmd := t.option.Update(msg)
-			t.option = o.(*option)
-			return t, cmd
-		}
+		// Forward keypress message to active view
+		v, cmd := t.view.Update(msg)
+		t.view = v.(View)
+		return t, cmd
 	}
 	return t, nil
 }
@@ -186,33 +198,9 @@ func (t *tui) View() string {
 	t.status.width = boxWidth
 	t.footer.width = boxWidth - padding*2
 
-	var view string
-	switch t.viewport {
-	case ExecuteView:
-		t.execute.width = boxWidth - padding*2
-		t.execute.height = boxHeight - padding - t.footer.style.GetHeight()
-		view = t.execute.View()
-	case HistoryView:
-		t.history.width = boxWidth - padding*2
-		t.history.height = boxHeight - padding - t.footer.style.GetHeight()
-		view = t.history.View()
-	case FavouriteView:
-		t.favourite.width = boxWidth - padding*2
-		t.favourite.height = boxHeight - padding - t.footer.style.GetHeight()
-		view = t.favourite.View()
-	case FavouriteInputView:
-		t.favouriteInput.width = boxWidth - padding*2
-		t.favouriteInput.height = boxHeight - padding - t.footer.style.GetHeight()
-		view = t.favouriteInput.View()
-	case SettingsView:
-		t.settings.width = boxWidth - padding*2
-		t.settings.height = boxHeight - padding - t.footer.style.GetHeight()
-		view = t.settings.View()
-	default:
-		t.option.width = boxWidth - padding*2
-		t.option.height = boxHeight - padding - t.footer.style.GetHeight()
-		view = t.option.View()
-	}
+	// Set view width and height
+	t.view.setWidth(boxWidth - padding*2)
+	t.view.setHeight(boxHeight - padding - t.footer.style.GetHeight())
 
 	// Content box
 	return lipgloss.NewStyle().
@@ -225,7 +213,7 @@ func (t *tui) View() string {
 				Padding(padding, padding, 0, padding).
 				MarginTop(gap).Render(
 				lipgloss.JoinVertical(lipgloss.Left,
-					view,
+					t.view.View(),
 					t.footer.View(),
 				),
 			),

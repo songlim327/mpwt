@@ -55,6 +55,16 @@ func newHistory(tuiConf *TuiConfig) (*history, error) {
 	}, nil
 }
 
+// setWidth sets the width of the history component
+func (h *history) setWidth(width int) {
+	h.width = width
+}
+
+// setHeight sets the height of the history component
+func (h *history) setHeight(height int) {
+	h.height = height
+}
+
 // Init is the bubbletea package ELM architecture specific functions
 func (h *history) Init() tea.Cmd {
 	return nil
@@ -67,7 +77,7 @@ func (h *history) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch {
 		case key.Matches(msg, h.keys.back):
 			return h, tea.Batch(
-				sendViewportUpdate(MainView),
+				sendViewStrUpdate(MainView),
 				sendStatusUpdate(""),
 			)
 
@@ -77,7 +87,7 @@ func (h *history) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				// Show favourite input view
 				return h, tea.Batch(
 					sendFavouriteInputUpdate(i.wtCmd, strings.Split(i.cmds, ",")),
-					sendViewportUpdate(FavouriteInputView),
+					sendViewStrUpdate(FavouriteInputView),
 					sendStatusUpdate(""),
 				)
 			}

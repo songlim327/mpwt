@@ -36,6 +36,16 @@ func newOption() *option {
 	return &option{list: l}
 }
 
+// setWidth sets the width of the option component
+func (o *option) setWidth(width int) {
+	o.width = width
+}
+
+// setHeight sets the height of the option component
+func (o *option) setHeight(height int) {
+	o.height = height
+}
+
 // Init is the bubbletea package ELM architecture specific functions
 func (o *option) Init() tea.Cmd {
 	return nil
@@ -76,7 +86,7 @@ func (o *option) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 					return o, tea.Quit
 				}
 				return o, func() tea.Msg {
-					return viewportMsg{viewport: i.title}
+					return viewStrMsg{viewStr: i.title}
 				}
 			}
 			return o, tea.Quit
