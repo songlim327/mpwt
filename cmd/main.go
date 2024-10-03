@@ -1,3 +1,4 @@
+//go:generate goversioninfo -platform-specific=true assets/versioninfo.json
 package main
 
 import (
@@ -57,7 +58,7 @@ func main() {
 			OpenInNewTab: conf.OpenInNewTab,
 		},
 		Repository: r,
-		ConfigMgr: mgr,
+		ConfigMgr:  mgr,
 	}
 
 	// Start terminal application

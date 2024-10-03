@@ -10,4 +10,6 @@ debug:
 
 .PHONY: build
 build:
-	go build -ldflags "-s -w" -o mpwt.exe cmd\main.go
+	del cmd\*syso
+	go generate cmd\main.go
+	go build -ldflags "-s -w" -o mpwt.exe ./cmd/
