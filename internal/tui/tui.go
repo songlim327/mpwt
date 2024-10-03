@@ -135,8 +135,7 @@ func (t *tui) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			OpenInNewTab: conf.OpenInNewTab,
 		}
 
-		// Recreate view requiring terminal config
-		t.favouriteInput = newFavouriteInput(t.TuiConfig)
+		// Recreate view requiring TerminalConfig
 		t.execute = newExecute(t.TuiConfig)
 
 	case tea.KeyMsg:

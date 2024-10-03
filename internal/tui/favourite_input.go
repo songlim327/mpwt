@@ -138,12 +138,10 @@ func (f *favouriteInput) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // View is the bubbletea package ELM architecture specific functions
 func (f *favouriteInput) View() string {
 	f.input.Width = f.width
-	emptyHeight := f.height - 6 // height of each textStyle (1x4), input.Model(1), help.Model(1)
+	emptyHeight := f.height - 4 // height of each textStyle (1x2), input.Model(1), help.Model(1)
 	empty := lipgloss.NewStyle().Height(emptyHeight).Render("")
 
 	return lipgloss.JoinVertical(lipgloss.Left,
-		f.textStyle.Render(fmt.Sprintf("Direction: %s", f.tuiConfig.TerminalConfig.Direction)),
-		f.textStyle.Render(fmt.Sprintf("Columns: %d", f.tuiConfig.TerminalConfig.Columns)),
 		f.textStyle.Render(fmt.Sprintf("Panes: %d", len(f.cmds))),
 		f.textStyle.Render(fmt.Sprintf("Commands: %s", strings.Join(f.cmds, ","))),
 		f.input.View(),
