@@ -13,3 +13,7 @@ build:
 	del cmd\*syso
 	go generate cmd\main.go
 	go build -ldflags "-s -w" -o mpwt.exe ./cmd/
+
+.PHONY: releaselocal
+releaselocal:
+	go release --snapshot --clean
