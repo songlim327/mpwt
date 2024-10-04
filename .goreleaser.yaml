@@ -5,6 +5,7 @@ version: 2
 before:
   hooks:
     - go mod tidy
+    - go install github.com/josephspurrier/goversioninfo/cmd/goversioninfo@v1.4.1
     - go generate ./...
 
 builds:
