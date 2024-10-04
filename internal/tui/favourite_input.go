@@ -131,6 +131,7 @@ func (f *favouriteInput) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if err != nil {
 				return f, sendStatusUpdate(err.Error())
 			} else {
+				f.input.SetValue("")
 				return f, tea.Batch(
 					sendFavouriteUpdate(),
 					sendViewStrUpdate(MainView),
