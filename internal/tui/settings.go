@@ -53,6 +53,7 @@ func newSettings(tuiConf *TuiConfig) (*settings, error) {
 	buf = bytes.ReplaceAll(buf, []byte("\r\n"), []byte("\n"))
 
 	ta := textarea.New()
+	ta.CharLimit = 0
 	ta.SetValue(string(buf))
 	ta.Focus()
 
