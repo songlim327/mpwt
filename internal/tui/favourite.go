@@ -59,6 +59,7 @@ func loadItems(tuiConf *TuiConfig) ([]list.Item, error) {
 
 	for _, f := range favourites {
 		items = append(items, cmdItem{
+			id:    int(*f.ID),
 			title: f.Name,
 			desc:  fmt.Sprintf("(%d panes) %s", len(strings.Split(f.Cmds, ",")), f.Cmds),
 			cmds:  f.Cmds,
@@ -107,7 +108,7 @@ func (f *favourite) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			i, ok := f.list.SelectedItem().(cmdItem)
 			if ok {
 				// Delete favourite
-				err := f.tuiConfig.Repository.DeleteFavourite(i.title)
+				err := f.tuiConfig.Repository.DeleteFavourite(i.id, i.title)
 				if err != nil {
 					return f, sendStatusUpdate(err.Error())
 				}

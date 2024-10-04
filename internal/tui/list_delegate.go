@@ -13,6 +13,7 @@ import (
 
 // cmdItem represents custom item for list.Model (used in history, favourite)
 type cmdItem struct {
+	id                       int
 	title, desc, cmds, wtCmd string
 }
 
