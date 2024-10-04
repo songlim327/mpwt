@@ -5,7 +5,6 @@ version: 2
 before:
   hooks:
     - go mod tidy
-    - cmd /C del cmd\*syso
     - go generate ./...
 
 builds:
