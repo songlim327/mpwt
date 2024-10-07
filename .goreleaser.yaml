@@ -40,3 +40,26 @@ changelog:
       - "^test:"
 
 report_sizes: true
+
+winget:
+  - publisher: songlim327
+    license: MIT
+    copyright: Tan Song Lim
+    homepage: "https://github.com/songlim327/mpwt"
+    short_description: "TUI tool transforming Windows Terminal experience by splitting multi commands into panes"
+    publisher_url: https://songlim.xyz
+    publisher_support_url: "https://github.com/songlim327/mpwt/issues/new"
+    tags:
+      - golang
+      - cli
+    repository:
+      owner: songlim327
+      name: winget-pkgs
+      branch: "{{.ProjectName}}-{{.Version}}"
+      pull_request:
+        enabled: true
+        draft: true
+        base:
+          owner: microsoft
+          name: winget-pkgs
+          branch: master
