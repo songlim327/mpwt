@@ -6,7 +6,8 @@ jet:
 
 .PHONY: debug
 debug:
-	go run cmd\main.go -debug
+	go build -ldflags "-s -w" -o mpwt.exe ./cmd/
+	./mpwt -debug
 
 .PHONY: build
 build:
