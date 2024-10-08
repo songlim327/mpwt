@@ -49,7 +49,7 @@ func (m *ConfigManager) NewConfig() (*Config, error) {
 			return nil, fmt.Errorf("failed to retrieve config template file: %v", err)
 		}
 
-		err = os.WriteFile("config.yaml", configBytes, 0644)
+		err = os.WriteFile(m.ConfigPath, configBytes, 0644)
 		if err != nil {
 			return nil, fmt.Errorf("failed to intialize config file: %v", err)
 		}
@@ -62,7 +62,7 @@ func (m *ConfigManager) NewConfig() (*Config, error) {
 func (m *ConfigManager) ReadConfig() (*Config, error) {
 	buf, err := m.ReadConfigRaw()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read config in raw: %v", err)
 	}
 
 	c := &Config{}
