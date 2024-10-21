@@ -71,6 +71,7 @@ func initLogger(appEnv string, w io.Writer) {
 			case EnvDevelopment:
 				logger.SetLevel(log.DebugLevel)
 				logger.SetReportCaller(true)
+				logger.SetCallerOffset(1)
 			case EnvProduction:
 				logger.SetLevel(log.InfoLevel)
 			default:
