@@ -22,7 +22,15 @@ Welcome to `mpwt` repository! This tool transforms your **Windows Terminal** exp
 
 ## Setup 📐
 
-Download [prebuild binaries](https://github.com/songlim327/mpwt/releases), double click to execute it.
+### winget
+
+```powershell
+winget install --id songlim327.mpwt
+```
+
+### Manual
+
+Alternatively, download [prebuild binaries](https://github.com/songlim327/mpwt/releases), double click to execute it.
 
 ## Configuration ⚙️
 
