@@ -2,13 +2,13 @@
   "FixedFileInfo": {
     "FileVersion": {
       "Major": 1,
-      "Minor": 0,
+      "Minor": 1,
       "Patch": 0,
       "Build": 0
     },
     "ProductVersion": {
       "Major": 1,
-      "Minor": 0,
+      "Minor": 1,
       "Patch": 0,
       "Build": 0
     },
@@ -22,14 +22,14 @@
     "Comments": "",
     "CompanyName": "songlim327",
     "FileDescription": "A tool for splitting the windows terminal into distinct panes",
-    "FileVersion": "1.0.0.0",
+    "FileVersion": "1.1.0.0",
     "InternalName": "mpwt.exe",
-    "LegalCopyright": "Copyright © 2024 - present Tan Song Lim",
+    "LegalCopyright": "Copyright © 2026 - present Tan Song Lim",
     "LegalTrademarks": "",
     "OriginalFilename": "mpwt",
     "PrivateBuild": "",
     "ProductName": "mpwt",
-    "ProductVersion": "v1.0.0.0",
+    "ProductVersion": "v1.1.0.0",
     "SpecialBuild": ""
   },
   "VarFileInfo": {
