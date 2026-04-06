@@ -86,7 +86,7 @@ func (h *history) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if ok {
 				// Show favourite input view
 				return h, tea.Batch(
-					sendFavouriteInputUpdate(i),
+					sendFavouriteInputUpdate(FavouriteInputAdd, i),
 					sendViewStrUpdate(FavouriteInputView),
 					sendStatusUpdate(""),
 				)

@@ -115,6 +115,17 @@ func (f *favourite) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				)
 			}
 
+		case key.Matches(msg, f.keys.rename):
+			i, ok := f.list.SelectedItem().(cmdItem)
+			if ok {
+				// Show favourite input view with rename action but pre-filled command data
+				return f, tea.Batch(
+					sendFavouriteInputUpdate(FavouriteInputEdit, i),
+					sendViewStrUpdate(FavouriteInputView),
+					sendStatusUpdate(""),
+				)
+			}
+
 		case key.Matches(msg, f.keys.delete):
 			i, ok := f.list.SelectedItem().(cmdItem)
 			if ok {

@@ -34,15 +34,16 @@ func (k favouriteInputKeyMap) FullHelp() [][]key.Binding {
 
 // favouriteInputMsg represents a message struct to be displayed in the favourite input component
 type favouriteInputMsg struct {
-	item cmdItem
+	action string
+	item   cmdItem
 }
 
 // favouriteInput represents the state of favourite input component
 type favouriteInput struct {
 	width     int
 	height    int
-	wtCmd     string
-	cmds      []string
+	item      cmdItem
+	action    string
 	input     textinput.Model
 	help      help.Model
 	keys      favouriteInputKeyMap
@@ -82,10 +83,11 @@ func newFavouriteInput(tuiConf *TuiConfig) *favouriteInput {
 }
 
 // sendFavouriteInputUpdate sends favouriteInputMsg to be captured by the favourite input component
-func sendFavouriteInputUpdate(item cmdItem) func() tea.Msg {
+func sendFavouriteInputUpdate(action string, item cmdItem) func() tea.Msg {
 	return func() tea.Msg {
 		return favouriteInputMsg{
-			item: item,
+			action: action,
+			item:   item,
 		}
 	}
 }
@@ -109,8 +111,8 @@ func (f *favouriteInput) Init() tea.Cmd {
 func (f *favouriteInput) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case favouriteInputMsg:
-		f.cmds = strings.Split(msg.item.cmds, ",")
-		f.wtCmd = msg.item.wtCmd
+		f.item = msg.item
+		f.action = msg.action
 
 	case tea.KeyMsg:
 		switch {
@@ -125,16 +127,34 @@ func (f *favouriteInput) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		case key.Matches(msg, f.keys.save):
 			name := f.input.Value()
-			err := f.tuiConfig.Repository.InsertFavourite(name, f.wtCmd, f.cmds)
-			if err != nil {
-				return f, sendStatusUpdate(err.Error())
-			} else {
-				f.input.SetValue("")
-				return f, tea.Batch(
-					sendFavouriteUpdate(),
-					sendViewStrUpdate(MainView),
-					sendStatusUpdate("Favourite saved successfully"),
-				)
+			switch f.action {
+			case FavouriteInputAdd:
+				err := f.tuiConfig.Repository.InsertFavourite(name, f.item.wtCmd, strings.Split(f.item.cmds, ","))
+				if err != nil {
+					return f, sendStatusUpdate(err.Error())
+				} else {
+					f.input.SetValue("")
+					return f, tea.Batch(
+						sendFavouriteUpdate(),
+						sendViewStrUpdate(MainView),
+						sendStatusUpdate("Favourite added successfully"),
+					)
+				}
+			case FavouriteInputEdit:
+				err := f.tuiConfig.Repository.UpdateFavourite(f.item.id, name, f.item.wtCmd, strings.Split(f.item.cmds, ","))
+				if err != nil {
+					return f, sendStatusUpdate(err.Error())
+				} else {
+					f.input.SetValue("")
+					return f, tea.Batch(
+						sendFavouriteUpdate(),
+						sendViewStrUpdate(FavouriteView),
+						sendStatusUpdate("Favourite updated successfully"),
+					)
+				}
+			default:
+				// This case should not be hit
+				return f, sendStatusUpdate("Unknown action")
 			}
 		}
 	}
@@ -151,8 +171,8 @@ func (f *favouriteInput) View() string {
 	empty := lipgloss.NewStyle().Height(emptyHeight).Render("")
 
 	return lipgloss.JoinVertical(lipgloss.Left,
-		f.textStyle.Render(fmt.Sprintf("Panes: %d", len(f.cmds))),
-		f.textStyle.Render(fmt.Sprintf("Commands: %s", strings.Join(f.cmds, ","))),
+		f.textStyle.Render(fmt.Sprintf("Panes: %d", len(strings.Split(f.item.cmds, ",")))),
+		f.textStyle.Render(fmt.Sprintf("Commands: %s", f.item.cmds)),
 		f.input.View(),
 		empty,
 		f.help.View(f.keys),

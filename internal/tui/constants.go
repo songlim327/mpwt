@@ -43,3 +43,9 @@ const (
 	ExitView           = "Exit"
 	ExitViewDesc       = "exit the program"
 )
+
+const (
+	// Favourite input action
+	FavouriteInputAdd  = "add"
+	FavouriteInputEdit = "edit"
+)
