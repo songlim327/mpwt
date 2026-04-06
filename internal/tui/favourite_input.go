@@ -34,8 +34,7 @@ func (k favouriteInputKeyMap) FullHelp() [][]key.Binding {
 
 // favouriteInputMsg represents a message struct to be displayed in the favourite input component
 type favouriteInputMsg struct {
-	cmds  []string
-	wtCmd string
+	item cmdItem
 }
 
 // favouriteInput represents the state of favourite input component
@@ -83,11 +82,10 @@ func newFavouriteInput(tuiConf *TuiConfig) *favouriteInput {
 }
 
 // sendFavouriteInputUpdate sends favouriteInputMsg to be captured by the favourite input component
-func sendFavouriteInputUpdate(wtCmd string, cmds []string) func() tea.Msg {
+func sendFavouriteInputUpdate(item cmdItem) func() tea.Msg {
 	return func() tea.Msg {
 		return favouriteInputMsg{
-			cmds:  cmds,
-			wtCmd: wtCmd,
+			item: item,
 		}
 	}
 }
@@ -111,8 +109,8 @@ func (f *favouriteInput) Init() tea.Cmd {
 func (f *favouriteInput) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case favouriteInputMsg:
-		f.cmds = msg.cmds
-		f.wtCmd = msg.wtCmd
+		f.cmds = strings.Split(msg.item.cmds, ",")
+		f.wtCmd = msg.item.wtCmd
 
 	case tea.KeyMsg:
 		switch {
