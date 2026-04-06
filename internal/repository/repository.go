@@ -26,6 +26,7 @@ type IRepository interface {
 	ReadHistory() (Histories, error)
 	ReadFavourite() (Favourites, error)
 	DeleteFavourite(id int, name string) error
+	UpdateFavourite(id int, name string, wtCmd string, cmds []string) error
 }
 
 // Repository represents a repository for storing and retrieving history of executed commands
@@ -108,6 +109,19 @@ func (r *Repository) InsertFavourite(name, wtCmd string, cmds []string) error {
 	_, err := stmt.Exec(r.db)
 	if err != nil {
 		return fmt.Errorf("failed to insert FAVOURITE: %v", err)
+	}
+	return nil
+}
+
+// UpdateFavourite updates a favourite entry in the database by its id
+func (r *Repository) UpdateFavourite(id int, name string, wtCmd string, cmds []string) error {
+	stmt := jetTable.Favourite.UPDATE(jetTable.Favourite.Name, jetTable.Favourite.Wtcmd, jetTable.Favourite.Cmds).
+		SET(name, wtCmd, strings.Join(cmds, ",")).
+		WHERE(jetTable.Favourite.ID.IN(jetSqlite.Int(int64(id))))
+
+	_, err := stmt.Exec(r.db)
+	if err != nil {
+		return fmt.Errorf("failed to update FAVOURITE: %v", err)
 	}
 	return nil
 }

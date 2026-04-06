@@ -42,6 +42,7 @@ type tui struct {
 	history        *history
 	favourite      *favourite
 	favouriteInput *favouriteInput
+	favouriteEdit  *favouriteEdit
 	settings       *settings
 }
 
@@ -96,6 +97,7 @@ func newTui(tuiConf *TuiConfig) (*tui, error) {
 		history:        h,
 		favourite:      f,
 		favouriteInput: newFavouriteInput(tuiConf),
+		favouriteEdit:  newFavouriteEdit(tuiConf),
 		settings:       s,
 	}, nil
 }
@@ -111,6 +113,8 @@ func (t *tui) mapViewStrToView(viewStr string) View {
 		return t.favourite
 	case FavouriteInputView:
 		return t.favouriteInput
+	case FavouriteEditView:
+		return t.favouriteEdit
 	case SettingsView:
 		return t.settings
 	default:
@@ -152,6 +156,11 @@ func (t *tui) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case favouriteInputMsg:
 		i, cmd := t.favouriteInput.Update(msg)
 		t.favouriteInput = i.(*favouriteInput)
+		return t, cmd
+
+	case favouriteEditMsg:
+		e, cmd := t.favouriteEdit.Update(msg)
+		t.favouriteEdit = e.(*favouriteEdit)
 		return t, cmd
 
 	case reloadMsg:

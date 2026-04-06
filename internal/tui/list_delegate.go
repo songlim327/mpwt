@@ -125,7 +125,7 @@ func newFavouriteDelegate(keys *favouriteDelegateKeyMap) list.DefaultDelegate {
 	d.Styles.SelectedDesc = selectedDescStyle
 
 	// Custom help bindings for the history item delegate
-	help := []key.Binding{keys.launch, keys.delete, keys.back}
+	help := []key.Binding{keys.launch, keys.edit, keys.delete, keys.back}
 
 	d.ShortHelpFunc = func() []key.Binding {
 		return help
@@ -141,6 +141,7 @@ func newFavouriteDelegate(keys *favouriteDelegateKeyMap) list.DefaultDelegate {
 // favouriteDelegateKeyMap is a map of key bindings for the favourite item delegate
 type favouriteDelegateKeyMap struct {
 	back   key.Binding
+	edit   key.Binding
 	launch key.Binding
 	delete key.Binding
 }
@@ -151,6 +152,10 @@ func newFavouriteDelegateKeyMap() *favouriteDelegateKeyMap {
 		back: key.NewBinding(
 			key.WithKeys("esc"),
 			key.WithHelp("esc", "back to main menu"),
+		),
+		edit: key.NewBinding(
+			key.WithKeys("ctrl+e"),
+			key.WithHelp("ctrl+e", "edit favourite"),
 		),
 		launch: key.NewBinding(
 			key.WithKeys("ctrl+s"),

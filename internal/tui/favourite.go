@@ -104,6 +104,17 @@ func (f *favourite) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				sendStatusUpdate(""),
 			)
 
+		case key.Matches(msg, f.keys.edit):
+			i, ok := f.list.SelectedItem().(cmdItem)
+			if ok {
+				// Show favourite edit view
+				return f, tea.Batch(
+					sendfavouriteEditUpdate(i),
+					sendViewStrUpdate(FavouriteEditView),
+					sendStatusUpdate(""),
+				)
+			}
+
 		case key.Matches(msg, f.keys.delete):
 			i, ok := f.list.SelectedItem().(cmdItem)
 			if ok {
